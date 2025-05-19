@@ -14,152 +14,152 @@ module.exports = {
     {
       id: uuidv4(),
       slug: "all-dashboard",
-      permission: "Tất cả"
+      permission: "Tất cả bảng thống kê"
     },
     {
       id: uuidv4(),
       slug: "list-role",
-      permission: "Xem danh sách"
+      permission: "Danh sách vai trò"
     },
     {
       id: uuidv4(),
       slug: "add-role",
-      permission: "Thêm"
+      permission: "Thêm vai trò"
     },
     {
       id: uuidv4(),
       slug: "edit-role",
-      permission: "Chỉnh sửa"
+      permission: "Chỉnh sửa vai trò"
     },
     {
       id: uuidv4(),
       slug: "delete-role",
-      permission: "Xóa"
+      permission: "Xóa vai trò"
     },
     {
       id: uuidv4(),
       slug: "list-account",
-      permission: "Xem danh sách"
+      permission: "Danh sách tài khoản"
     },
     {
       id: uuidv4(),
       slug: "edit-account",
-      permission: "Chỉnh sửa"
+      permission: "Chỉnh sửa tài khoản"
     },
     {
       id: uuidv4(),
       slug: "list-event",
-      permission: "Xem danh sách"
+      permission: "Danh sách sự kiện"
     },
     {
       id: uuidv4(),
       slug: "add-event",
-      permission: "Thêm"
+      permission: "Thêm sự kiện"
     },
     {
       id: uuidv4(),
       slug: "edit-event",
-      permission: "Chỉnh sửa"
+      permission: "Chỉnh sửa sự kiện"
     },
     {
       id: uuidv4(),
       slug: "delete-event",
-      permission: "Xóa"
+      permission: "Xóa sự kiện"
     },
     {
       id: uuidv4(),
       slug: "list-coupon",
-      permission: "Xem danh sách"
+      permission: "Danh sách phiếu giảm giá"
     },
     {
       id: uuidv4(),
       slug: "add-coupon",
-      permission: "Thêm"
+      permission: "Thêm phiếu giảm giá"
     },
     {
       id: uuidv4(),
       slug: "edit-coupon",
-      permission: "Chỉnh sửa"
+      permission: "Chỉnh sửa phiếu giảm giá"
     },
     {
       id: uuidv4(),
       slug: "delete-coupon",
-      permission: "Xóa"
+      permission: "Xóa phiếu giảm giá"
     },
     {
       id: uuidv4(),
       slug: "list-color",
-      permission: "Xem danh sách"
+      permission: "Danh sách màu sắc"
     },
     {
       id: uuidv4(),
       slug: "add-color",
-      permission: "Thêm"
+      permission: "Thêm màu sắc"
     },
     {
       id: uuidv4(),
       slug: "edit-color",
-      permission: "Chỉnh sửa"
+      permission: "Chỉnh sửa màu sắc"
     },
     {
       id: uuidv4(),
       slug: "delete-color",
-      permission: "Xóa"
+      permission: "Xóa màu sắc"
     },
     {
       id: uuidv4(),
       slug: "list-size",
-      permission: "Xem danh sách"
+      permission: "Danh sách kích cỡ"
     },
     {
       id: uuidv4(),
       slug: "add-size",
-      permission: "Thêm"
+      permission: "Thêm kích cỡ"
     },
     {
       id: uuidv4(),
       slug: "edit-size",
-      permission: "Chỉnh sửa"
+      permission: "Chỉnh sửa kích cỡ"
     },
     {
       id: uuidv4(),
       slug: "delete-size",
-      permission: "Xóa"
+      permission: "Xóa kích cỡ"
     },
     {
       id: uuidv4(),
       slug: "list-product",
-      permission: "Xem danh sách"
+      permission: "Danh sách sản phẩm"
     },
     {
       id: uuidv4(),
       slug: "add-product",
-      permission: "Thêm"
+      permission: "Thêm sản phẩm"
     },
     {
       id: uuidv4(),
       slug: "edit-product",
-      permission: "Chỉnh sửa"
+      permission: "Chỉnh sửa sản phẩm"
     },
     {
       id: uuidv4(),
       slug: "delete-product",
-      permission: "Xóa"
+      permission: "Xóa sản phẩm"
     },
     {
       id: uuidv4(),
       slug: "list-order",
-      permission: "Xem danh sách"
+      permission: "Danh sách đơn hàng"
     },
     {
       id: uuidv4(),
       slug: "detail-order",
-      permission: "Xem chi tiết"
+      permission: "Chi tiết đơn hàng"
     },
     {
       id: uuidv4(),
       slug: "edit-order",
-      permission: "Chỉnh sửa"
+      permission: "Chỉnh sửa đơn hàng"
     },
    ])
   },

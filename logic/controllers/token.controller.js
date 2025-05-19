@@ -87,6 +87,7 @@ module.exports = {
 
             const accountData = {
                 id: findAccount.id,
+                full_name: findAccount.full_name,
                 first_name: findAccount.first_name,
                 last_name: findAccount.last_name,
                 email: findAccount.email,

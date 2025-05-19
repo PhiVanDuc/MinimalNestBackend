@@ -132,6 +132,7 @@ module.exports = {
 
             // Thêm tài khoản vào database
             const createAccount = await Account.create({
+                full_name: `${firstName} ${lastName}`,
                 first_name: firstName,
                 last_name: lastName,
                 email: email,
@@ -225,6 +226,7 @@ module.exports = {
 
             const accountData = {
                 id: findAccount.id,
+                full_name: findAccount.full_name,
                 first_name: findAccount.first_name,
                 last_name: findAccount.last_name,
                 email: findAccount.email,

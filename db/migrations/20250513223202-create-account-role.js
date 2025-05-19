@@ -4,13 +4,6 @@
 module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.createTable('accounts_roles', {
-      id: {
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4,
-        primaryKey: true,
-        unique: true,
-        allowNull: false
-      },
       account_id: {
         type: Sequelize.UUID,
         allowNull: false,

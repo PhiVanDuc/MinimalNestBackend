@@ -4,61 +4,76 @@ const { Op } = require("sequelize");
 const slugify = require("slugify");
 const response = require("../../utils/response");
 
+const LIMIT = process.env.LIMIT;
+
 module.exports = {
     get_roles: async (req, res) => {
         try {
+            const all = req.query?.all;
             const page = req.query?.page || 1;
             const role = (req.query?.role)?.trim() || "";
 
-            // Tính toán cần lấy dữ liệu bắt đầu từ index nào.
-            const limit = 15;
-            const offset = (+page - 1) * limit;
+            if (!all) {
+                // Tính toán cần lấy dữ liệu bắt đầu từ index nào.
+                const limit = +LIMIT;
+                const offset = (+page - 1) * limit;
 
-            const whereCondition = role ?
-            {
-                role: {
-                    [Op.iLike]: `%${role}%`
-                }
-            } :
-            {};
-
-            const { count, rows } = await Role.findAndCountAll({
-                limit,
-                offset,
-                where: whereCondition,
-                order: [['created_at', 'DESC']],
-                include: [
-                    {
-                        model: Account,
-                        as: 'accounts',
-                        attributes: [],
-                        through: { attributes: [] }
+                const whereCondition = role ?
+                {
+                    role: {
+                        [Op.iLike]: `%${role}%`
                     }
-                ],
-                attributes: {
-                    include: [
-                        [
-                            Sequelize.fn("COUNT", Sequelize.col("accounts.id")),
-                            "account_used"
-                        ]
-                    ]
-                },
-                group: ['Role.id'],
-                distinct: true,
-                subQuery: false
-            });
+                } :
+                {};
 
-            return response(res, 200, {
-                success: true,
-                message: "Lấy danh sách vai trò thành công!",
-                data: {
-                    totalItems: count?.length,
-                    pageSize: limit,
-                    totalPages: Math.ceil(count?.length / limit),
-                    currentPage: +page,
-                    rows
-                }
-            })
+                const { count, rows } = await Role.findAndCountAll({
+                    limit,
+                    offset,
+                    where: whereCondition,
+                    order: [['created_at', 'DESC']],
+                    include: [
+                        {
+                            model: Account,
+                            as: 'accounts',
+                            attributes: [],
+                            through: { attributes: [] }
+                        }
+                    ],
+                    attributes: {
+                        include: [
+                            [
+                                Sequelize.fn("COUNT", Sequelize.col("accounts.id")),
+                                "account_used"
+                            ]
+                        ]
+                    },
+                    group: ['Role.id'],
+                    distinct: true,
+                    subQuery: false
+                });
+
+                return response(res, 200, {
+                    success: true,
+                    message: "Lấy danh sách vai trò thành công!",
+                    data: {
+                        totalItems: count?.length,
+                        pageSize: limit,
+                        totalPages: Math.ceil(count?.length / limit),
+                        currentPage: +page,
+                        rows
+                    }
+                });
+            }
+            else {
+                const allRoles = await Role.findAll();
+                return response(res, 200, {
+                    success: true,
+                    message: "Lấy danh sách vai trò thành công!",
+                    data: {
+                        roles: allRoles
+                    }
+                })
+            }
         }
         catch(error) {
             console.log(error);
