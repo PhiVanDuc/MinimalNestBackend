@@ -8,6 +8,8 @@ const tokenRouter = require("./token");
 const roleRouter = require("./role");
 const permissionRouter = require("./permission");
 const accountRouter = require("./account");
+const eventRouter = require("./event");
+const couponRouter = require("./coupon");
 
 router.get('/', function(req, res, next) {
   res.json({
@@ -25,6 +27,8 @@ protectedRouter.use(authMiddleware);
 protectedRouter.use('/roles', roleRouter);
 protectedRouter.use('/permissions', permissionRouter);
 protectedRouter.use('/accounts', accountRouter);
+protectedRouter.use('/events', eventRouter);
+protectedRouter.use('/coupons', couponRouter);
 
 // Gắn nhóm protected và router chính
 router.use(protectedRouter);

@@ -340,56 +340,5 @@ module.exports = {
                 message: "Lỗi server!"
             });
         }
-    },
-
-    search_role: async (req, res) => {
-        try {
-            const { page, role } = req.body || {};
-
-            const pageNumber = parseInt(page, 10);
-            const trimmedRole = role?.trim();
-
-            // Kiểm tra dữ liệu đầu vào
-            if (!trimmedRole || isNaN(pageNumber) || pageNumber < 1) {
-                return response(res, 400, {
-                    success: false,
-                    message: "Vui lòng cung cấp đủ dữ liệu - hợp lệ!"
-                });
-            }
-
-            // Tìm kiếm
-            const limit = 15;
-            const offset = (pageNumber - 1) * limit;
-
-            const { count, rows } = await Role.findAndCountAll({
-                limit,
-                offset,
-                where: {
-                    role: {
-                        [Op.iLike]: `%${trimmedRole}%`
-                    }
-                },
-                order: [['created_at', 'DESC']]
-            });
-
-            return response(res, 200, {
-                success: true,
-                message: "Tìm kiếm vai trò thành công!",
-                data: {
-                    totalItems: count,
-                    totalPages: Math.ceil(count / limit),
-                    currentPage: pageNumber,
-                    rows
-                }
-            });
-        }
-        catch(error) {
-            console.log(error);
-            
-            return response(res, 500, {
-                success: false,
-                message: "Lỗi server!"
-            });
-        }
-    } 
+    }
 }
