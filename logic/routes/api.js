@@ -10,6 +10,9 @@ const permissionRouter = require("./permission");
 const accountRouter = require("./account");
 const eventRouter = require("./event");
 const couponRouter = require("./coupon");
+const colorRouter = require("./color");
+const categoryRouter = require("./category");
+const sizeRouter = require("./size");
 
 router.get('/', function(req, res, next) {
   res.json({
@@ -29,6 +32,9 @@ protectedRouter.use('/permissions', permissionRouter);
 protectedRouter.use('/accounts', accountRouter);
 protectedRouter.use('/events', eventRouter);
 protectedRouter.use('/coupons', couponRouter);
+protectedRouter.use('/colors', colorRouter);
+protectedRouter.use('/categories', categoryRouter);
+protectedRouter.use('/sizes', sizeRouter);
 
 // Gắn nhóm protected và router chính
 router.use(protectedRouter);
