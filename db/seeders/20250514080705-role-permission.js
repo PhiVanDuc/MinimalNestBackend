@@ -1,61 +1,76 @@
 'use strict';
 
+/** @type {import('sequelize-cli').Migration} */
+'use strict';
+
 const { QueryTypes } = require('sequelize');
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    // Lấy role SIÊU QUẢN TRỊ
-    const superRole = await queryInterface.sequelize.query(
-      `SELECT id FROM "roles" WHERE slug = 'sieu-quan-tri' LIMIT 1;`,
-      { type: QueryTypes.SELECT, plain: true }
+    // Fetch all roles and permissions
+    const roles = await queryInterface.sequelize.query(
+      'SELECT id, slug FROM roles',
+      { type: QueryTypes.SELECT }
     );
-
-    // Lấy toàn bộ permissions
-    const allPermissions = await queryInterface.sequelize.query(
-      `SELECT id FROM "permissions" ORDER BY id;`,
+    const permissions = await queryInterface.sequelize.query(
+      'SELECT id, slug FROM permissions',
       { type: QueryTypes.SELECT }
     );
 
-    // Lấy 8 permission đầu tiên
-    const firstEight = allPermissions.slice(0, 8);
+    // Map permission slugs to their IDs
+    const permMap = {};
+    permissions.forEach(p => {
+      permMap[p.slug] = p.id;
+    });
 
-    // Lấy các role còn lại (ngoại trừ siêu quản trị)
-    const otherRoles = await queryInterface.sequelize.query(
-      `SELECT id FROM "roles" WHERE slug != 'sieu-quan-tri';`,
-      { type: QueryTypes.SELECT }
-    );
+    // Define which permissions each non-super-admin role should have
+    const mapping = {
+      'quan-ly-bang-thong-ke': ['all-dashboard'],
+      'quan-ly-vai-tro': ['list-role', 'add-role', 'edit-role', 'delete-role'],
+      'quan-ly-tai-khoan': ['list-account', 'edit-account'],
+      'quan-ly-su-kien': ['list-event', 'add-event', 'edit-event', 'delete-event'],
+      'quan-ly-phieu-giam-gia': ['list-coupon', 'add-coupon', 'edit-coupon', 'delete-coupon'],
+      'quan-ly-mau-sac': ['list-color', 'add-color', 'edit-color', 'delete-color'],
+      'quan-ly-kich-co': ['list-size', 'add-size', 'edit-size', 'delete-size'],
+      'quan-ly-san-pham': ['list-product', 'add-product', 'edit-product', 'delete-product'],
+      'quan-ly-don-hang': ['list-order', 'detail-order', 'edit-order'],
+      'quan-ly-kho-hang': ['list-inventory', 'add-inventory', 'edit-inventory'],
+    };
 
-    // Chuẩn bị dữ liệu để bulkInsert
-    const seedData = [];
+    const rolePermissions = [];
 
-    // Siêu quản trị có tất cả permissions
-    allPermissions.forEach(({ id: permission_id }) => {
-      seedData.push({
-        role_id: superRole.id,
-        permission_id,
-        created_at: new Date(),
-        updated_at: new Date(),
+    // Build role-permission pairs
+    roles.forEach(role => {
+      // Every role gets the 'admin' permission
+      let slugs = ['admin'];
+
+      if (role.slug === 'sieu-quan-tri') {
+        // Super-admin gets all permissions
+        slugs = Object.keys(permMap);
+      } else if (mapping[role.slug]) {
+        // Add specific permissions
+        slugs = slugs.concat(mapping[role.slug]);
+      }
+
+      // Dedupe and collect pairs
+      Array.from(new Set(slugs)).forEach(slug => {
+        const permId = permMap[slug];
+        if (permId) {
+          rolePermissions.push({
+            role_id: role.id,
+            permission_id: permId
+          });
+        }
       });
     });
 
-    // Các role khác chỉ có 8 permission đầu tiên
-    otherRoles.forEach(({ id: role_id }) => {
-      firstEight.forEach(({ id: permission_id }) => {
-        seedData.push({
-          role_id,
-          permission_id,
-          created_at: new Date(),
-          updated_at: new Date(),
-        });
-      });
-    });
-
-    return queryInterface.bulkInsert('roles_permissions', seedData, {});
+    // Seed the join table
+    return queryInterface.bulkInsert('roles_permissions', rolePermissions);
   },
 
   async down (queryInterface, Sequelize) {
-    // Xóa toàn bộ dữ liệu roles_permissions đã seed
+    // Remove all seeded role-permission associations
     await queryInterface.bulkDelete('roles_permissions', null, {});
   }
 };

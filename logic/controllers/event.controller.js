@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-const { Event } = require("../../db/models/index");
+const { Event, Coupon } = require("../../db/models/index");
 const { Op } = require("sequelize");
 
 const slugify = require("slugify");
@@ -35,6 +35,10 @@ module.exports = {
                     offset,
                     where: whereCondition,
                     order: [['created_at', 'DESC']],
+                    include: {
+                        model: Coupon,
+                        as: "coupons"
+                    }
                 });
 
                 return response(res, 200, {

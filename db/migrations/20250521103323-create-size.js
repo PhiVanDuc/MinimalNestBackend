@@ -16,7 +16,8 @@ module.exports = {
         references: {
           model: "categories",
           key: "id"
-        }
+        },
+        onDelete: 'CASCADE'
       },
       size: {
         type: Sequelize.STRING,

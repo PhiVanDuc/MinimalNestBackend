@@ -161,6 +161,21 @@ module.exports = {
       slug: "edit-order",
       permission: "Chỉnh sửa đơn hàng"
     },
+    {
+      id: uuidv4(),
+      slug: "list-inventory",
+      permission: "Danh sách kho hàng"
+    },
+    {
+      id: uuidv4(),
+      slug: "add-inventory",
+      permission: "Thêm kho hàng"
+    },
+    {
+      id: uuidv4(),
+      slug: "edit-inventory",
+      permission: "Chỉnh sửa kho hàng"
+    },
    ])
   },
 
