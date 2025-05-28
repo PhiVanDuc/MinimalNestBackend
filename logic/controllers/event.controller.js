@@ -245,7 +245,7 @@ module.exports = {
 
             // Xóa ảnh cũ
             const oldPublicId = extractPublicId(oldImage);
-            await cloudinary.uploader.destroy(oldPublicId);
+            await cloudinary.uploader.destroy(oldPublicId, { invalidate: true });
 
             // Tải ảnh lên cloudinary
             let uploadImage;
@@ -254,7 +254,8 @@ module.exports = {
                     folder: `events`,
                     public_id: slug,
                     use_filename: true,
-                    unique_filename: false
+                    unique_filename: false,
+                    overwrite: true
                 });
             } catch (err) {
                 console.error(err);

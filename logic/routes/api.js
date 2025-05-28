@@ -13,6 +13,7 @@ const couponRouter = require("./coupon");
 const colorRouter = require("./color");
 const categoryRouter = require("./category");
 const sizeRouter = require("./size");
+const livingSpaceRouter = require("./living_space");
 
 router.get('/', function(req, res, next) {
   res.json({
@@ -21,6 +22,8 @@ router.get('/', function(req, res, next) {
 });
 router.use('/auth', authRouter);
 router.use('/token', tokenRouter);
+router.use('/categories', categoryRouter);
+router.use('/living_spaces', livingSpaceRouter);
 
 // Các đường dẫn api cần bảo vệ
 const protectedRouter = express.Router();
@@ -33,7 +36,6 @@ protectedRouter.use('/accounts', accountRouter);
 protectedRouter.use('/events', eventRouter);
 protectedRouter.use('/coupons', couponRouter);
 protectedRouter.use('/colors', colorRouter);
-protectedRouter.use('/categories', categoryRouter);
 protectedRouter.use('/sizes', sizeRouter);
 
 // Gắn nhóm protected và router chính
