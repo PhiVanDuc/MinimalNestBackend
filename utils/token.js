@@ -3,7 +3,7 @@ require('dotenv').config();
 const jwt = require('jsonwebtoken');
 
 module.exports = {
-    create_token: (payload, time = '10s', options = {}) => {
+    create_token: (payload, time = '1h', options = {}) => {
         const secret = process.env.JWT_SECRET;
 
         return jwt.sign(

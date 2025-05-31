@@ -5,6 +5,15 @@ const {
 module.exports = (sequelize, DataTypes) => {
   class Color extends Model {
     static associate(models) {
+      Color.hasMany(models.Variant, {
+        foreignKey: 'color_id',
+        as: 'variants'
+      });
+
+      Color.hasMany(models.ProductImage, {
+        foreignKey: 'color_id',
+        as: 'product_images'
+      });
     }
   }
   Color.init({

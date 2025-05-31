@@ -41,7 +41,7 @@ module.exports = {
 
                 return response(res, 200, {
                     success: true,
-                    message: "Lấy danh sách kích cỡ thành công!",
+                    message: "Lấy danh sách các kích cỡ thành công!",
                     data: {
                         totalItems: count,
                         pageSize: limit,
@@ -50,6 +50,14 @@ module.exports = {
                         rows
                     }
                 });
+            }
+            else {
+                const sizes = await Size.findAll();
+                return response(res, 200, {
+                    success: true,
+                    message: "Lấy danh sách các kích cỡ thành công!",
+                    data: { sizes }
+                })
             }
         }
         catch(error) {

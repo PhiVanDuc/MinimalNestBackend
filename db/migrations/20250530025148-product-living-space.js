@@ -3,26 +3,26 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('accounts_roles', {
-      account_id: {
+    await queryInterface.createTable('products_living_spaces', {
+      product_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'accounts',
+          model: 'products',
           key: 'id'
         },
         onUpdate: "CASCADE",
-        onDelete: 'CASCADE',
+        onDelete: 'CASCADE'
       },
-      role_id: {
+      living_space_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'roles',
+          model: 'living_spaces',
           key: 'id'
         },
         onUpdate: "CASCADE",
-        onDelete: 'CASCADE',
+        onDelete: 'CASCADE'
       },
       created_at: {
         type: Sequelize.DATE,
@@ -38,6 +38,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('accounts_roles');
+    await queryInterface.dropTable('products_living_spaces');
   }
 };

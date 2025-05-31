@@ -8,7 +8,12 @@ module.exports = (sequelize, DataTypes) => {
       Size.belongsTo(models.Category, {
         foreignKey: "category_id",
         as: "category"
-      })
+      });
+
+      Size.hasMany(models.Variant, {
+        foreignKey: 'size_id',
+        as: 'variants'
+      });
     }
   }
   Size.init({
@@ -28,7 +33,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     },
     desc: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
     }
   }, {

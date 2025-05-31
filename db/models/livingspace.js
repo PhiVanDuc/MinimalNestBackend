@@ -5,6 +5,12 @@ const {
 module.exports = (sequelize, DataTypes) => {
   class LivingSpace extends Model {
     static associate(models) {
+      LivingSpace.belongsToMany(models.Product, {
+        through: 'products_living_spaces',
+        foreignKey: 'living_space_id',
+        otherKey: 'product_id',
+        as: 'products'
+      });
     }
   }
   LivingSpace.init({

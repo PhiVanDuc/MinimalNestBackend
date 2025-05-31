@@ -18,10 +18,10 @@ router.get("/", get_events);
 router.get("/:slug", get_event);
 
 // Thêm role
-router.post("/", upload.none(), add_event);
+router.post("/", upload.single("image"), add_event);
 
 // Chỉnh sửa vai trò
-router.put("/:slug", upload.none(), edit_event);
+router.put("/:slug", upload.single("image"), edit_event);
 
 // Xóa role
 router.delete("/:slug", delete_event);

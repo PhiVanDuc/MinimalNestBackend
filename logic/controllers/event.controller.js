@@ -5,8 +5,8 @@ const { Op } = require("sequelize");
 
 const slugify = require("slugify");
 const response = require("../../utils/response");
-const { cloudinary } = require("../../utils/cloudinary");
-const { extractPublicId } = require("cloudinary-build-url");
+const cloudinary = require("../../utils/cloudinary");
+const uploadToCloudinary = require("../../utils/cloudinary_upload");
 
 const LIMIT = process.env.LIMIT
 
@@ -118,7 +118,8 @@ module.exports = {
 
     add_event: async (req, res) => {
         try {
-            const { image, event, desc, startDate, endDate } = req.body;
+            const { event, desc, startDate, endDate } = req.body;
+            const image = req.file;
 
             // Kiểm tra dữ liệu
             if (!image || !event || !desc || !startDate || !endDate) {
@@ -128,7 +129,7 @@ module.exports = {
                 })
             }
 
-            // Kiểm tra xem tiêu đề có bị trùng không
+            // // Kiểm tra xem tiêu đề có bị trùng không
             const slug = slugify(event, {
                 lower: true,
                 locale: 'vi',
@@ -149,11 +150,9 @@ module.exports = {
             // Tải ảnh lên cloudinary
             let uploadImage;
             try {
-                uploadImage = await cloudinary.uploader.upload(image, {
+                uploadImage = await uploadToCloudinary(image.buffer, {
                     folder: `events`,
-                    public_id: slug,
-                    use_filename: true,
-                    unique_filename: false
+                    quality: 85
                 });
             } catch (err) {
                 console.error(err);
@@ -171,9 +170,10 @@ module.exports = {
                 });
             }
 
-            // Tạo mới event
+            // // Tạo mới event
             const newEvent = await Event.create({
                 image: uploadImage.secure_url,
+                public_id: uploadImage.public_id,
                 slug,
                 event,
                 desc,
@@ -202,10 +202,11 @@ module.exports = {
     edit_event: async (req, res) => {
         try {
             const paramSlug = req.params.slug;
-            const { image, event, desc, startDate, endDate } = req.body;
+            const { event, desc, startDate, endDate } = req.body;
+            const image = req.file;
 
             // Kiểm tra dữ liệu
-            if (!image || !event || !desc || !startDate || !endDate) {
+            if (!event || !desc || !startDate || !endDate) {
                 return response(res, 400, {
                     success: false,
                     message: "Vui lòng cung cấp đủ dữ liệu!"
@@ -223,7 +224,6 @@ module.exports = {
                     message: "Không thể cập nhật một sự kiện không tồn tại!"
                 });
             }
-            const oldImage = existingEvent?.image;
 
             // Kiểm tra xem event đã tồn tại chưa
             const slug = slugify(event, {
@@ -243,40 +243,41 @@ module.exports = {
                 });
             }
 
-            // Xóa ảnh cũ
-            const oldPublicId = extractPublicId(oldImage);
-            await cloudinary.uploader.destroy(oldPublicId, { invalidate: true });
-
-            // Tải ảnh lên cloudinary
             let uploadImage;
-            try {
-                uploadImage = await cloudinary.uploader.upload(image, {
-                    folder: `events`,
-                    public_id: slug,
-                    use_filename: true,
-                    unique_filename: false,
-                    overwrite: true
-                });
-            } catch (err) {
-                console.error(err);
+            if (image) {
+                // Xóa ảnh cũ
+                await cloudinary.uploader.destroy(existingEvent?.public_id, { invalidate: true });
 
-                return response(res, 500, {
-                    success: false,
-                    message: "Tải ảnh lên Cloudinary thất bại!"
-                });
-            }
+                // Tải ảnh lên cloudinary
+                try {
+                    uploadImage = await uploadToCloudinary(image.buffer, {
+                        folder: `events`,
+                        quality: 85
+                    });
+                } catch (err) {
+                    console.error(err);
 
-            if (!uploadImage || !uploadImage.secure_url) {
-                return response(res, 500, {
-                    success: false,
-                    message: "Không thể tải ảnh lên Cloudinary!",
-                });
+                    return response(res, 500, {
+                        success: false,
+                        message: "Tải ảnh lên Cloudinary thất bại!"
+                    });
+                }
+
+                if (!uploadImage || !uploadImage.secure_url) {
+                    return response(res, 500, {
+                        success: false,
+                        message: "Không thể tải ảnh lên Cloudinary!",
+                    });
+                }
             }
 
             // Cập nhật Event
             const updateEvent = await existingEvent.update(
                 {
-                    image: uploadImage.secure_url,
+                    ...(uploadImage && {
+                        image: uploadImage.secure_url,
+                        public_id: uploadImage.public_id,
+                    }),
                     slug,
                     event,
                     desc,

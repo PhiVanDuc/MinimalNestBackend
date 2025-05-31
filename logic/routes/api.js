@@ -14,6 +14,7 @@ const colorRouter = require("./color");
 const categoryRouter = require("./category");
 const sizeRouter = require("./size");
 const livingSpaceRouter = require("./living_space");
+const productRouter = require("./product");
 
 router.get('/', function(req, res, next) {
   res.json({
@@ -37,6 +38,7 @@ protectedRouter.use('/events', eventRouter);
 protectedRouter.use('/coupons', couponRouter);
 protectedRouter.use('/colors', colorRouter);
 protectedRouter.use('/sizes', sizeRouter);
+protectedRouter.use('/products', productRouter);
 
 // Gắn nhóm protected và router chính
 router.use(protectedRouter);

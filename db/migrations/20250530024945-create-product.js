@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('events', {
+    await queryInterface.createTable('products', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
@@ -10,20 +10,11 @@ module.exports = {
         unique: true,
         allowNull: false
       },
-      image: {
-        type: Sequelize.STRING,
+      category_id: {
+        type: Sequelize.UUID,
         allowNull: false
       },
-      public_id: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      slug: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true
-      },
-      event: {
+      product: {
         type: Sequelize.STRING,
         allowNull: false
       },
@@ -31,12 +22,24 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: false
       },
-      start_date: {
-        type: Sequelize.DATE,
+      cost_price: {
+        type: Sequelize.DECIMAL(12, 2),
         allowNull: false
       },
-      end_date: {
-        type: Sequelize.DATE,
+      interest_rate: {
+        type: Sequelize.DECIMAL(5, 2),
+        allowNull: false
+      },
+      discount_type: {
+        type: Sequelize.ENUM('amount', 'percent'),
+        allowNull: true
+      },
+      discount_amount: {
+        type: Sequelize.DECIMAL(12, 2),
+        allowNull: true
+      },
+      final_price: {
+        type: Sequelize.DECIMAL(12, 2),
         allowNull: false
       },
       created_at: {
@@ -50,6 +53,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('events');
+    await queryInterface.dropTable('products');
   }
 };

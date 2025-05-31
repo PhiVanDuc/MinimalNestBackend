@@ -23,6 +23,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    public_id: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
     slug: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -33,7 +37,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     desc: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false
     },
     start_date: {

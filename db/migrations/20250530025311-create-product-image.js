@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('events', {
+    await queryInterface.createTable('product_images', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
@@ -10,33 +10,36 @@ module.exports = {
         unique: true,
         allowNull: false
       },
-      image: {
-        type: Sequelize.STRING,
+      product_id: {
+        type: Sequelize.UUID,
+        allowNull: true,
+        references: {
+          model: "products",
+          key: "id"
+        },
+        onUpdate: "CASCADE",
+        onDelete: "SET NULL"
+      },
+      color_id: {
+        type: Sequelize.UUID,
+        allowNull: true,
+        references: {
+          model: "colors",
+          key: "id"
+        },
+        onUpdate: "CASCADE",
+        onDelete: "RESTRICT"
+      },
+      url: {
+        type: Sequelize.TEXT,
         allowNull: false
       },
       public_id: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      slug: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true
-      },
-      event: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      desc: {
-        type: Sequelize.TEXT,
-        allowNull: false
-      },
-      start_date: {
-        type: Sequelize.DATE,
-        allowNull: false
-      },
-      end_date: {
-        type: Sequelize.DATE,
+      display_order: {
+        type: Sequelize.BOOLEAN,
         allowNull: false
       },
       created_at: {
@@ -50,6 +53,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('events');
+    await queryInterface.dropTable('product_images');
   }
 };

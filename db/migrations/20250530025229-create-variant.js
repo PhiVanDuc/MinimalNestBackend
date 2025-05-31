@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('sizes', {
+    await queryInterface.createTable('variants', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
@@ -10,22 +10,39 @@ module.exports = {
         unique: true,
         allowNull: false
       },
-      category_id: {
+      product_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: "categories",
+          model: "products",
           key: "id"
         },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE"
+      },
+      color_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: 'colors',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
         onDelete: 'RESTRICT'
       },
-      size: {
-        type: Sequelize.STRING,
+      size_id: {
+        type: Sequelize.UUID,
         allowNull: false,
+        references: {
+          model: 'sizes',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'RESTRICT'
       },
-      desc: {
-        type: Sequelize.TEXT,
-        allowNull: false,
+      sku: {
+        type: Sequelize.STRING,
+        allowNull: false
       },
       created_at: {
         allowNull: false,
@@ -38,6 +55,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('sizes');
+    await queryInterface.dropTable('variants');
   }
 };

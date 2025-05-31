@@ -11,6 +11,7 @@ module.exports = {
           model: 'roles',
           key: 'id'
         },
+        onUpdate: "CASCADE",
         onDelete: 'CASCADE'
       },
       permission_id: {
@@ -20,6 +21,7 @@ module.exports = {
           model: 'permissions',
           key: 'id'
         },
+        onUpdate: "CASCADE",
         onDelete: 'CASCADE'
       },
       created_at: {
