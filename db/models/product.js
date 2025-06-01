@@ -40,6 +40,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.UUID,
       allowNull: false
     },
+    slug: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true
+    },
     product: {
       type: DataTypes.STRING,
       allowNull: false

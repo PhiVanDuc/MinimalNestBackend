@@ -1,5 +1,6 @@
 const { Product, Variant, ProductImage, sequelize } = require("../../../db/models/index");
 
+const slugify = require("slugify");
 const response = require("../../../utils/response");
 const uploadToCloudinary = require("../../../utils/cloudinary_upload");
 
@@ -64,46 +65,41 @@ module.exports = async (req, res) => {
             });
         }
 
-        // Ghép images với file lại.
-        const newImages = images.map((image, imageIndex) => {
-            const colorId = image?.color;
-            const imageFiles = [];
-            
-            const filesMap = {};
-            files.forEach(file => {
-                const match = file.fieldname.match(/images\[(\d+)\]\[files\]\[(\d+)\]\[file\]/);
-
-                if (match) {
-                    const [_, imgIdx, fileIdx] = match;
-
-                    if (!filesMap[imgIdx]) filesMap[imgIdx] = {};
-                    filesMap[imgIdx][fileIdx] = file;
-                }
-            });
-
-            image.files?.forEach((file, fileIndex) => {
-                const matchedFile = filesMap[imageIndex]?.[fileIndex];
-                if (matchedFile) {
-                    imageFiles.push({
-                        main: file.main === "true" ? true : false,
-                        file: matchedFile
-                    });
-                }
-            });
-
-            return {
-                color: colorId,
-                files: imageFiles
-            };
+        // Kiểm tra xem slug đã tồn tại chưa
+        const slug = slugify(product, {
+            lower: true,
+            locale: 'vi',
+            remove: /[*+~.()'"!:@]/g
         });
 
-        const hasEmptyFiles = newImages.some(image => image.files.length === 0);
-        if (hasEmptyFiles) {
+        const findProduct = await Product.findOne({
+            where: { slug }
+        });
+
+        if (findProduct) {
+            await transaction.rollback();
+            return response(res, 400, {
+                    success: false,
+                    message: "Tên sản phẩm đã tồn tại!"
+                }
+            );
+        }
+
+        // Ghép images với file lại.
+        const newImages = images?.map((image, index) => {
+            return {
+                ...image,
+                file: files[index]
+            }
+        });
+
+        const uniqueColorIds = [...new Set(newImages.map(img => img.colorId))];
+        if (uniqueColorIds?.length !== colors?.length) {
             await transaction.rollback();
             return response(res, 400, {
                 success: false,
                 message: "Một trong các màu sắc của sản phẩm chưa có ảnh!"
-            });
+            })
         }
 
         // Thêm sản phẩm
@@ -116,6 +112,7 @@ module.exports = async (req, res) => {
         const addProduct = await Product.create(
             {
                 category_id: categoryId,
+                slug,
                 product: product,
                 desc,
                 cost_price: parseFloat(costPrice),
@@ -140,22 +137,20 @@ module.exports = async (req, res) => {
 
         // Thêm ảnh
         try {
-            const uploadPromises = newImages.flatMap(imageGroup => {
-                const colorId = imageGroup?.color;
-
-                return imageGroup.files.map(file => 
-                    uploadToCloudinary(file?.file?.buffer, {
+            const uploadPromises = newImages.map(image => {
+                return (
+                    uploadToCloudinary(image?.file?.buffer, {
                         folder: "products",
                         quality: 85
                     })
                     .then(uploadResult => ({
                         product_id: addProduct.id,
-                        color_id: colorId,
+                        color_id: image?.colorId,
                         url: uploadResult.secure_url,
                         public_id: uploadResult.public_id,
-                        display_order: file?.main
+                        display_order: image?.main === "true"
                     }))
-                );
+                )
             });
 
             const imageRecords = await Promise.all(uploadPromises);

@@ -14,6 +14,11 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: false
       },
+      slug: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true
+      },
       product: {
         type: Sequelize.STRING,
         allowNull: false
