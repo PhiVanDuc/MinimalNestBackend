@@ -69,6 +69,32 @@ module.exports = async (req, res) => {
             });
         }
 
+        if (mainImages && mainImages?.length !== colorIds?.length) {
+            await transaction.rollback();
+            return response(res, 400, {
+                success: false,
+                message: "Một trong các màu sắc thiếu ảnh chính!"
+            });
+        }
+
+        if (images) {
+            const allImageColorIds = [...new Set([
+                ...images.map(img => img.colorId),
+                ...mainImages.map(img => img.colorId)
+            ])];
+
+            const sortedColorIds = [...colorIds].sort();
+            const sortedImageColorIds = allImageColorIds.sort();
+
+            if (JSON.stringify(sortedColorIds) !== JSON.stringify(sortedImageColorIds)) {
+                await transaction.rollback();
+                return response(res, 400, {
+                    success: false,
+                    message: "Màu sắc của các ảnh không khớp với màu sắc đã chọn!"
+                });
+            }
+        }
+
         // Kiểm tra xem slug có bị trùng với các sản phẩm khác không
         const slug = slugify(product, {
             lower: true,
@@ -81,7 +107,7 @@ module.exports = async (req, res) => {
             transaction
         });
 
-        if (currentProduct.name !== product) {
+        if (slug !== currentProduct.slug) {
             const slugConflict = await Product.findOne({
                 where: {
                     id: { [Op.ne]: currentProduct.id },
@@ -102,10 +128,12 @@ module.exports = async (req, res) => {
         // Cập nhật sản phẩm
         const discountFields = {};
         if (discount && validateNumber(discountAmount, 0)) {
-            console.log("Có vào đây!");
-
             discountFields.discount_type = discountType;
             discountFields.discount_amount = parseFloat(discountAmount);
+        }
+        else if (!discount) {
+            discountFields.discount_type = null;
+            discountFields.discount_amount = null;
         }
 
         await currentProduct.update(
