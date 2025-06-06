@@ -3,27 +3,24 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Category extends Model {
+  class ProductType extends Model {
     static associate(models) {
-      Category.hasMany(models.Size, {
-        foreignKey: "category_id",
-        as: "sizes"
-      })
-
-      Category.hasMany(models.Product, {
-        foreignKey: "category_id",
+      ProductType.belongsToMany(models.Product, {
+        through: "products_product_types",
+        foreignKey: "product_type_id",
+        otherKey: "product_id",
         as: "products"
       });
 
-      Category.belongsToMany(models.Discount, {
-        through: "discounts_categories",
-        foreignKey: "category_id",
+      ProductType.belongsToMany(models.Discount, {
+        through: "discounts_product_types",
+        foreignKey: "product_type_id",
         otherKey: "discount_id",
         as: "discounts"
       });
     }
   }
-  Category.init({
+  ProductType.init({
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
@@ -33,18 +30,19 @@ module.exports = (sequelize, DataTypes) => {
     },
     slug: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      unique: true
     },
-    category: {
+    product_type: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
     }
   }, {
     sequelize,
-    modelName: 'Category',
-    tableName: 'categories',
+    modelName: 'ProductType',
+    tableName: 'product_types',
     createdAt: 'created_at',
     updatedAt: 'updated_at'
   });
-  return Category;
+  return ProductType;
 };

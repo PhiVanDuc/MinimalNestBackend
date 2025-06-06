@@ -9,7 +9,8 @@ const {
     get_product,
     add_product,
     edit_product,
-    delete_product
+    delete_product,
+    add_products_excel
 } = require("../controllers/product.controller/product.controller");
 
 // Lấy ra danh sách sản phẩm
@@ -20,6 +21,9 @@ router.get("/:slug", get_product);
 
 // Thêm sản phẩm
 router.post("/", upload.any(), add_product);
+
+// Thêm sản phẩm - excel
+router.post("/excel", upload.any(), add_products_excel);
 
 // Chỉnh sửa sản phẩm
 router.put("/:slug", upload.any(), edit_product);

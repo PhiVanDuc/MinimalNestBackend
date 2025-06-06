@@ -1,4 +1,6 @@
-const { Product, Category, Variant, Size, Color } = require("../../../db/models/index");
+require("dotenv").config();
+
+const { Product, ProductImage, Discount, Category, Variant, Size, Color } = require("../../../db/models/index");
 const { Op } = require("sequelize");
 
 const response = require("../../../utils/response");
@@ -22,12 +24,29 @@ module.exports = async (req, res) => {
         } :
         {};
 
-        const { count, rows } = await Product.findAndCountAll({
+        const count = await Product.count({
+            where: whereCondition
+        });
+
+        const rows = await Product.findAll({
             limit,
             offset,
             where: whereCondition,
             order: [['created_at', 'DESC']],
             include: [
+                {
+                    model: ProductImage,
+                    as: "product_images",
+                    where: {
+                        display_order: true
+                    },
+                    required: false
+                },
+                {
+                    model: Discount,
+                    as: "general_discount",
+                    attributes: ['id', 'discount_name', 'discount_type', 'discount_amount']
+                },
                 {
                     model: Category,
                     as: "category"
@@ -76,7 +95,16 @@ module.exports = async (req, res) => {
             );
 
             const newProduct = {
-                ...product,
+                id: product?.id,
+                slug: product?.slug,
+                product: product?.product,
+                image: product?.product_images[0]?.url,
+                category: product?.category,
+                cost_price: product?.cost_price,
+                interest_rate: product?.interest_rate,
+                general_discount: product?.general_discount,
+                discount_type: product?.discount_type,
+                discount_amount: product?.discount_amount,
                 colors: uniqueColors,
                 sizes: uniqueSizes
             };
@@ -91,7 +119,7 @@ module.exports = async (req, res) => {
             data: {
                 totalItems: count,
                 pageSize: limit,
-                totalPages: Math.ceil(count?.length / limit),
+                totalPages: Math.ceil(count / limit),
                 currentPage: +page,
                 rows: formatRows
             }

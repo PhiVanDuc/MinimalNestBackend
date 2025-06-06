@@ -1,4 +1,4 @@
-const { Product, LivingSpace, Variant, ProductImage, Color, Size } = require("../../../db/models/index");
+const { Product, Discount, LivingSpace, Variant, ProductImage, Color, Size } = require("../../../db/models/index");
 
 const response = require("../../../utils/response");
 
@@ -18,6 +18,11 @@ module.exports = async (req, res) => {
             {
                 where: { slug },
                 include: [
+                    {
+                        model: Discount,
+                        as: "general_discount",
+                        attributes: ['id', 'discount_name', 'discount_type', 'discount_amount']
+                    },
                     {
                         model: LivingSpace,
                         as: "living_spaces",
@@ -70,22 +75,26 @@ module.exports = async (req, res) => {
             };
         });
 
+        const { id, slug: finalSlug, product, desc, category_id, cost_price, interest_rate, general_discount, discount_type, discount_amount } = productPlain;
+
         const data = {
             product: {
-                ...productPlain,
-                living_spaces: undefined,
-                variants: undefined,
-                product_images: undefined
+                id,
+                slug: finalSlug,
+                product,
+                desc,
+                category_id,
+                cost_price,
+                interest_rate,
+                general_discount,
+                discount_type,
+                discount_amount
             },
             living_space_ids: livingSpaceIds,
             colors: colors.map(c => c.get({ plain: true })),
             sizes: sizes.map(s => s.get({ plain: true })),
             images: formatImages
         };
-
-        delete data.product.living_spaces;
-        delete data.product.variants;
-        delete data.product.product_images;
 
         return response(res, 200, {
             success: true,

@@ -1,24 +1,16 @@
-const { Product, Variant, ProductImage, sequelize } = require("../../../db/models/index");
+const { Product, Variant, ProductImage, ProductType, Inventory, sequelize } = require("../../../db/models/index");
 
 const slugify = require("slugify");
 const response = require("../../../utils/response");
+const safeParse = require("../../../utils/safe_parse");
+const validateNumber = require("../../../utils/validate_number");
 const uploadToCloudinary = require("../../../utils/cloudinary_upload");
-
-const validateNumber = (value, min = 0) => {
-    const num = parseFloat(value);
-    return !isNaN(num) && num >= min;
-};
-
-const safeParse = (str) => {
-    try { return JSON.parse(str) }
-    catch { return null }
-};
 
 module.exports = async (req, res) => {
     const transaction = await sequelize.transaction();
 
     try {
-        const { product, desc, costPrice, interestRate, discount, discountType, discountAmount, finalPrice, categoryId, livingSpaceIds, sizeIds, colorIds, variants, images } = req.body || {};
+        const { product, desc, costPrice, interestRate, discount, discountType, discountAmount, categoryId, livingSpaceIds, sizeIds, colorIds, variants, images } = req.body || {};
         const files = req.files;
 
         const livingSpaces = safeParse(livingSpaceIds);
@@ -33,7 +25,6 @@ module.exports = async (req, res) => {
                 !desc ||
                 !costPrice ||
                 !interestRate ||
-                !finalPrice ||
                 !categoryId ||
                 !livingSpaces ||
                 !livingSpaces?.length ||
@@ -55,8 +46,7 @@ module.exports = async (req, res) => {
 
         if (
             !validateNumber(costPrice) ||
-            !validateNumber(interestRate) ||
-            !validateNumber(finalPrice)
+            !validateNumber(interestRate)
         ) {
             await transaction.rollback();
             return response(res, 400, {
@@ -117,15 +107,14 @@ module.exports = async (req, res) => {
                 desc,
                 cost_price: parseFloat(costPrice),
                 interest_rate: parseFloat(interestRate),
-                ...discountFields,
-                final_price: parseFloat(finalPrice),
+                ...discountFields
             },
             { transaction }
         );
 
         await addProduct.addLiving_spaces(livingSpaces, { transaction });
 
-        await Variant.bulkCreate(
+        const addVariants = await Variant.bulkCreate(
             variantsData.map(variant => ({
                 product_id: addProduct.id,
                 color_id: variant.colorId,
@@ -164,9 +153,30 @@ module.exports = async (req, res) => {
                 message: "Lỗi lưu ảnh sản phẩm!"
             });
         }
+
+        const newProductId = await ProductType.findOne(
+            { where: { slug: "moi-nhat" } },
+            { transaction }
+        );
+
+        await addProduct.addProduct_types(
+            [newProductId?.id],
+            { transaction }
+        );
+
+        // Tạo luôn sản phẩm trong kho hàng
+        await Inventory.bulkCreate(
+            addVariants?.map(variant => {
+                return {
+                    variant_id: variant?.id,
+                    total_quantity: 0,
+                    reserved_quantity: 0
+                }
+            }),
+            { transaction }
+        )
         
         await transaction.commit();
-        
         return response(res, 200, {
             success: true,
             message: "Thêm mới sản phẩm thành công!"

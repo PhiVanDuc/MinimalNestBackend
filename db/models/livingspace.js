@@ -11,6 +11,13 @@ module.exports = (sequelize, DataTypes) => {
         otherKey: 'product_id',
         as: 'products'
       });
+
+      LivingSpace.belongsToMany(models.Discount, {
+        through: "discounts_living_spaces",
+        foreignKey: "living_space_id",
+        otherKey: "discount_id",
+        as: "discounts"
+      });
     }
   }
   LivingSpace.init({

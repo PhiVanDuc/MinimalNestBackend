@@ -15,7 +15,7 @@ module.exports = {
       { id: uuidv4(), slug: 'nau-nhat', color: 'Nâu nhạt', code: '#A1887F', created_at: new Date(), updated_at: new Date() },
       { id: uuidv4(), slug: 'nau-vang-dam', color: 'Nâu vàng đậm', code: '#B8860B', created_at: new Date(), updated_at: new Date() },
       { id: uuidv4(), slug: 'nau-vang-nhat', color: 'Nâu vàng nhạt', code: '#D2B48C', created_at: new Date(), updated_at: new Date() },
-      { id: uuidv4(), slug: 'xanh-la-nhat', color: 'Xanh lá cây nhạt', code: '#A8D5BA', created_at: new Date(), updated_at: new Date() }
+      { id: uuidv4(), slug: 'xanh-la-cay-nhat', color: 'Xanh lá cây nhạt', code: '#A8D5BA', created_at: new Date(), updated_at: new Date() }
     ], {});
   },
 

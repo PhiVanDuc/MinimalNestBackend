@@ -228,7 +228,9 @@ module.exports = {
             
             return response(res, 500, {
                 success: false,
-                message: "Lỗi server!"
+                message: (error.name === 'SequelizeForeignKeyConstraintError' || error.parent?.code === 'ER_ROW_IS_REFERENCED_2') ?
+                "Đang có sản phẩm sử dụng, không thể xóa màu sắc này!" :
+                "Lỗi server!"
             })
         }
     }

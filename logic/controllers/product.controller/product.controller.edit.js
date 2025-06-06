@@ -21,7 +21,7 @@ module.exports = async (req, res) => {
 
     try {
         const reqSlug = req.params?.slug;
-        let { product, desc, costPrice, interestRate, discount, discountType, discountAmount, finalPrice, categoryId, livingSpaceIds, sizeIds, colorIds, variants, images, deletedImages, mainImages } = req.body || {};
+        let { product, desc, costPrice, interestRate, discount, discountType, discountAmount, categoryId, livingSpaceIds, sizeIds, colorIds, variants, images, deletedImages, mainImages } = req.body || {};
         const files = req.files;
 
         livingSpaceIds = safeParse(livingSpaceIds);
@@ -38,7 +38,6 @@ module.exports = async (req, res) => {
                 !desc ||
                 !costPrice ||
                 !interestRate ||
-                !finalPrice ||
                 !categoryId ||
                 !livingSpaceIds ||
                 !livingSpaceIds?.length ||
@@ -59,8 +58,7 @@ module.exports = async (req, res) => {
 
         if (
             !validateNumber(costPrice) ||
-            !validateNumber(interestRate) ||
-            !validateNumber(finalPrice)
+            !validateNumber(interestRate)
         ) {
             await transaction.rollback();
             return response(res, 400, {
@@ -144,8 +142,7 @@ module.exports = async (req, res) => {
                 desc,
                 cost_price: parseFloat(costPrice),
                 interest_rate: parseFloat(interestRate),
-                ...discountFields,
-                final_price: parseFloat(finalPrice),
+                ...discountFields
             },
             { transaction }
         );

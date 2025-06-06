@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const { Role, Permission, Account, Sequelize, sequelize } = require("../../db/models/index");
 const { Op } = require("sequelize");
 

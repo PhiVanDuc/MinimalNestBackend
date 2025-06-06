@@ -48,6 +48,8 @@ module.exports = async (req, res) => {
             transaction
         });
 
+        await product.setProduct_types([], { transaction });
+
         await transaction.commit();
         return response(res, 200, {
             success: true,
@@ -60,7 +62,9 @@ module.exports = async (req, res) => {
         
         return response(res, 500, {
             success: false,
-            message: "Lỗi server!"
+            message: (error.name === 'SequelizeForeignKeyConstraintError' || error.parent?.code === 'ER_ROW_IS_REFERENCED_2') ?
+            "Đang tồn tại đơn hàng giữ chỗ, chưa thể xóa sản phẩm." :
+            "Lỗi server!"
         })
     }
 }

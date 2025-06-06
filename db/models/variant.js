@@ -19,6 +19,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'size_id',
         as: 'size'
       });
+
+      Variant.hasOne(models.Inventory, {
+        foreignKey: "variant_id",
+        as: "inventory"
+      });
     }
   }
   Variant.init({

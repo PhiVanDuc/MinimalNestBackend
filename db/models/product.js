@@ -25,7 +25,19 @@ module.exports = (sequelize, DataTypes) => {
       Product.hasMany(models.ProductImage, {
         foreignKey: "product_id",
         as: "product_images"
-      })
+      });
+
+      Product.belongsTo(models.Discount, {
+        foreignKey: "general_discount_id",
+        as: "general_discount"
+      });
+
+      Product.belongsToMany(models.ProductType, {
+        through: "products_product_types",
+        foreignKey: "product_id",
+        otherKey: "product_type_id",
+        as: "product_types"
+      });
     }
   }
   Product.init({
@@ -61,6 +73,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DECIMAL(5, 2),
       allowNull: false
     },
+    general_discount_id: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      defaultValue: null
+    },
     discount_type: {
       type: DataTypes.ENUM('amount', 'percent'),
       allowNull: true
@@ -68,10 +85,6 @@ module.exports = (sequelize, DataTypes) => {
     discount_amount: {
       type: DataTypes.DECIMAL(12, 2),
       allowNull: true
-    },
-    final_price: {
-      type: DataTypes.DECIMAL(12, 2),
-      allowNull: false
     }
   }, {
     sequelize,
