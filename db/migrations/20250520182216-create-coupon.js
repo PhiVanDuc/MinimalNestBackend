@@ -51,7 +51,7 @@ module.exports = {
         allowNull: true
       },
       customer_type: {
-        type: Sequelize.ENUM('all', 'first_time', 'new', 'vip'),
+        type: Sequelize.STRING,
         allowNull: false,
         defaultValue: 'all'
       },

@@ -31,6 +31,14 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: false
       },
+      link: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
+      event_type: {
+        type: Sequelize.ENUM("discount", "promote-product"),
+        allowNull: false
+      },
       start_date: {
         type: Sequelize.DATE,
         allowNull: false

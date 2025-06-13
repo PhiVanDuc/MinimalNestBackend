@@ -7,7 +7,7 @@ const {
     add_coupon,
     edit_coupon,
     delete_coupon
-} = require("../controllers/coupon.controller");
+} = require("../../controllers/coupon/private_coupon/coupon.controller");
 
 // Lấy ra danh sách phiếu giảm giá
 router.get("/", get_coupons);

@@ -57,6 +57,7 @@ module.exports = {
             })
         }
     },
+    
     get_inventories: async (req, res) => {
         try {
             const page = req.query?.page || 1;
@@ -151,6 +152,7 @@ module.exports = {
             })
         }
     },
+
     edit_inventory: async (req, res) => {
         try {
             const inventoryId = req.params?.inventoryId;
@@ -196,6 +198,7 @@ module.exports = {
             })
         }
     },
+
     add_inventories_excel: async (req, res) => {
         const transaction = await sequelize.transaction();
         try {

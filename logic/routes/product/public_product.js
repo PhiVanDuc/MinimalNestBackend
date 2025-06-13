@@ -5,7 +5,7 @@ const {
     get_public_products,
     get_all_public_products,
     get_public_product
-} = require("../controllers/public_product.controller");
+} = require("../../controllers/product/public_product/public_product.controller");
 
 // Lấy ra danh sách vai trò
 router.get("/", get_public_products);

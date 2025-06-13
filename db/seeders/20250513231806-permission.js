@@ -163,18 +163,28 @@ module.exports = {
     },
     {
       id: uuidv4(),
+      slug: "list-return",
+      permission: "Danh sách trả hàng"
+    },
+    {
+      id: uuidv4(),
+      slug: "edit-return",
+      permission: "Chỉnh sửa trả hàng"
+    },
+    {
+      id: uuidv4(),
       slug: "list-inventory",
-      permission: "Danh sách kho hàng"
+      permission: "Danh sách tồn kho"
     },
     {
       id: uuidv4(),
       slug: "add-inventory",
-      permission: "Thêm kho hàng"
+      permission: "Thêm tồn kho"
     },
     {
       id: uuidv4(),
       slug: "edit-inventory",
-      permission: "Chỉnh sửa kho hàng"
+      permission: "Chỉnh sửa tồn kho"
     },
    ])
   },

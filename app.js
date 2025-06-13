@@ -23,6 +23,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// cron
+// require("./logic/cron/reserved_order");
+// require("./logic/cron/product_type");
+
 app.use('/', indexRouter);
 app.use('/api', apiRouter);
 

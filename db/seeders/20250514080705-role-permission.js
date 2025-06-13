@@ -18,13 +18,11 @@ module.exports = {
       { type: QueryTypes.SELECT }
     );
 
-    // Map permission slugs to their IDs
     const permMap = {};
     permissions.forEach(p => {
       permMap[p.slug] = p.id;
     });
 
-    // Define which permissions each non-super-admin role should have
     const mapping = {
       'quan-ly-bang-thong-ke': ['all-dashboard'],
       'quan-ly-vai-tro': ['list-role', 'add-role', 'edit-role', 'delete-role'],
@@ -34,8 +32,9 @@ module.exports = {
       'quan-ly-mau-sac': ['list-color', 'add-color', 'edit-color', 'delete-color'],
       'quan-ly-kich-co': ['list-size', 'add-size', 'edit-size', 'delete-size'],
       'quan-ly-san-pham': ['list-product', 'add-product', 'edit-product', 'delete-product'],
+      'quan-ly-ton-kho': ['list-inventory', 'add-inventory', 'edit-inventory'],
       'quan-ly-don-hang': ['list-order', 'detail-order', 'edit-order'],
-      'quan-ly-kho-hang': ['list-inventory', 'add-inventory', 'edit-inventory'],
+      'quan-ly-tra-hang': ['list-return', 'edit-return'],
     };
 
     const rolePermissions = [];

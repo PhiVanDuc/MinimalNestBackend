@@ -3,25 +3,25 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class ReservedOrderItem extends Model {
+  class CartItem extends Model {
     static associate(models) {
-      ReservedOrderItem.belongsTo(models.ReservedOrder, {
-        foreignKey: "reserved_order_id",
-        as: "reserved_order"
+      CartItem.belongsTo(models.Cart, {
+        foreignKey: "cart_id",
+        as: "cart"
       });
 
-      ReservedOrderItem.belongsTo(models.Variant, {
-        foreignKey: "variant_id",
-        as: "variant"
-      });
-
-      ReservedOrderItem.belongsTo(models.Product, {
+      CartItem.belongsTo(models.Product, {
         foreignKey: "product_id",
         as: "product"
       });
+
+      CartItem.belongsTo(models.Variant, {
+        foreignKey: "variant_id",
+        as: "variant"
+      });
     }
   }
-  ReservedOrderItem.init({
+  CartItem.init({
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
@@ -29,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
       unique: true,
       allowNull: false
     },
-    reserved_order_id: {
+    cart_id: {
       type: DataTypes.UUID,
       allowNull: false
     },
@@ -43,14 +43,15 @@ module.exports = (sequelize, DataTypes) => {
     },
     quantity: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      defaultValue: 1
     }
   }, {
     sequelize,
-    modelName: 'ReservedOrderItem',
-    tableName: 'reserved_order_items',
+    modelName: 'CartItem',
+    tableName: 'cart_items',
     createdAt: 'created_at',
     updatedAt: 'updated_at'
   });
-  return ReservedOrderItem;
+  return CartItem;
 };

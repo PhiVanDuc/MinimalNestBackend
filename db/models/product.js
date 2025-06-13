@@ -38,6 +38,16 @@ module.exports = (sequelize, DataTypes) => {
         otherKey: "product_type_id",
         as: "product_types"
       });
+
+      Product.hasMany(models.CartItem, {
+        foreignKey: "product_id",
+        as: "cart_items"
+      });
+
+      Product.hasMany(models.ReservedOrderItem, {
+        foreignKey: "product_id",
+        as: "reserved_order_items"
+      });
     }
   }
   Product.init({

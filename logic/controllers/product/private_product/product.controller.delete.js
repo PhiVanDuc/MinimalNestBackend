@@ -1,7 +1,7 @@
-const { Product, ProductImage, sequelize } = require("../../../db/models/index");
+const { Product, ProductImage, sequelize } = require("../../../../db/models/index");
 
-const cloudinary = require("../../../utils/cloudinary");
-const response = require("../../../utils/response");
+const cloudinary = require("../../../../utils/cloudinary");
+const response = require("../../../../utils/response");
 
 module.exports = async (req, res) => {
     const transaction = await sequelize.transaction();

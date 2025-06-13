@@ -1,10 +1,10 @@
-const { Product, Variant, ProductImage, ProductType, Inventory, sequelize } = require("../../../db/models/index");
+const { Product, Variant, ProductImage, ProductType, Inventory, sequelize } = require("../../../../db/models/index");
 
 const slugify = require("slugify");
-const response = require("../../../utils/response");
-const safeParse = require("../../../utils/safe_parse");
-const validateNumber = require("../../../utils/validate_number");
-const uploadToCloudinary = require("../../../utils/cloudinary_upload");
+const response = require("../../../../utils/response");
+const safeParse = require("../../../../utils/safe_parse");
+const validateNumber = require("../../../../utils/validate_number");
+const uploadToCloudinary = require("../../../../utils/cloudinary_upload");
 
 module.exports = async (req, res) => {
     const transaction = await sequelize.transaction();

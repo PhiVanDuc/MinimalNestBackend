@@ -11,7 +11,7 @@ const {
     edit_product,
     delete_product,
     add_products_excel
-} = require("../controllers/product.controller/product.controller");
+} = require("../../controllers/product/private_product/product.controller");
 
 // Lấy ra danh sách sản phẩm
 router.get("/", get_products);

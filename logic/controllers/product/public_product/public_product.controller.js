@@ -1,7 +1,7 @@
 require("dotenv").config();
-const { Product, ProductImage, ProductType, Variant, Color, Size, Discount, Inventory } = require("../../db/models/index");
+const { Product, ProductImage, ProductType, Variant, Color, Size, Discount, Inventory } = require("../../../../db/models/index");
 
-const response = require("../../utils/response");
+const response = require("../../../../utils/response");
 const LIMIT = process.env.LIMIT;
 
 module.exports = {
@@ -139,6 +139,11 @@ module.exports = {
                 limit: limit,
                 include: [
                     {
+                        model: ProductType,
+                        as: "product_types",
+                        attributes: ['id', 'slug', 'product_type'],
+                    },
+                    {
                         model: Variant,
                         as: "variants",
                         attributes: ['id'],
@@ -219,7 +224,7 @@ module.exports = {
 
             const product = await Product.findOne({
                 where: { slug: paramSlug },
-                attributes: ['id', 'slug', 'product', 'cost_price', 'interest_rate', 'discount_type', 'discount_amount', 'created_at'],
+                attributes: ['id', 'slug', 'product', "desc", 'cost_price', 'interest_rate', 'discount_type', 'discount_amount', 'created_at'],
                 include: [
                     {
                         model: ProductImage,

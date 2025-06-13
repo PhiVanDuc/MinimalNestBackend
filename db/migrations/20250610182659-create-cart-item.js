@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('reserved_order_items', {
+    await queryInterface.createTable('cart_items', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
@@ -10,11 +10,11 @@ module.exports = {
         unique: true,
         allowNull: false
       },
-      reserved_order_id: {
+      cart_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: "reserved_orders",
+          model: "carts",
           key: "id"
         },
         onUpdate: "CASCADE",
@@ -28,7 +28,7 @@ module.exports = {
           key: "id"
         },
         onUpdate: "CASCADE",
-        onDelete: "RESTRICT"
+        onDelete: "CASCADE"
       },
       variant_id: {
         type: Sequelize.UUID,
@@ -38,11 +38,12 @@ module.exports = {
           key: "id"
         },
         onUpdate: "CASCADE",
-        onDelete: "RESTRICT"
+        onDelete: "CASCADE"
       },
       quantity: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: false,
+        defaultValue: 1
       },
       created_at: {
         allowNull: false,
@@ -55,6 +56,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('reserved_order_items');
+    await queryInterface.dropTable('cart_items');
   }
 };

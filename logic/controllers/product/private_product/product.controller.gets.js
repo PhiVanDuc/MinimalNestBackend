@@ -1,9 +1,9 @@
 require("dotenv").config();
 
-const { Product, ProductImage, Discount, Category, Variant, Size, Color } = require("../../../db/models/index");
+const { Product, ProductImage, Discount, Category, Variant, Size, Color } = require("../../../../db/models/index");
 const { Op } = require("sequelize");
 
-const response = require("../../../utils/response");
+const response = require("../../../../utils/response");
 
 const LIMIT = process.env.LIMIT;
 

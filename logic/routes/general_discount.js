@@ -7,7 +7,7 @@ const {
     edit_general_discounts,
     delete_general_discounts,
     get_filter_products
-} = require("../controllers/general_discount.controller.js/general_discount.controller");
+} = require("../controllers/general_discount/general_discount.controller");
 
 // Lấy ra danh sách giảm giá chung
 router.get("/", get_general_discounts);

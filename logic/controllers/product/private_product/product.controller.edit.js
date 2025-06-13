@@ -1,10 +1,10 @@
-const { Product, Variant, ProductImage, sequelize } = require("../../../db/models/index");
+const { Product, Variant, ProductImage, sequelize } = require("../../../../db/models/index");
 const { Op } = require('sequelize');
 
 const slugify = require("slugify");
-const cloudinary = require("../../../utils/cloudinary");
-const response = require("../../../utils/response");
-const uploadToCloudinary = require("../../../utils/cloudinary_upload");
+const cloudinary = require("../../../../utils/cloudinary");
+const response = require("../../../../utils/response");
+const uploadToCloudinary = require("../../../../utils/cloudinary_upload");
 
 const validateNumber = (value, min = 0) => {
     const num = parseFloat(value);

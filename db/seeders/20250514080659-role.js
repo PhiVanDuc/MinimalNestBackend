@@ -62,16 +62,22 @@ module.exports = {
       },
       {
         id: uuidv4(),
+        slug: "quan-ly-ton-kho",
+        role: "Quản lý tồn kho",
+        desc: "Vai trò liên quan đến tồn kho sản phẩm."
+      },
+      {
+        id: uuidv4(),
         slug: "quan-ly-don-hang",
         role: "Quản lý đơn hàng",
         desc: "Vai trò liên quan đến đơn hàng."
       },
       {
         id: uuidv4(),
-        slug: "quan-ly-kho-hang",
-        role: "Quản lý kho hàng",
-        desc: "Vai trò liên quan đến kho hàng."
-      },
+        slug: "quan-ly-tra-hang",
+        role: "Quản lý trả hàng",
+        desc: "Vai trò liên quan đến trả hàng."
+      }
     ])
   },
 

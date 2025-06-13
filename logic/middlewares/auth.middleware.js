@@ -1,7 +1,7 @@
 require('dotenv').config();
 
-const response = require("../../utils/response");
 const { verify } = require("../../utils/token");
+const response = require("../../utils/response");
 
 const authMiddleware = async (req, res, next) => {
     try {
@@ -9,7 +9,7 @@ const authMiddleware = async (req, res, next) => {
 
         if (AUTH_MIDDLEWARE === "allow") {
             const token = req.headers.authorization?.split(' ')[1];
-            
+
             // Kiểm tra dữ liệu
             if (!token) {
                 return response(res, 401, {
@@ -20,6 +20,7 @@ const authMiddleware = async (req, res, next) => {
 
             // Kiểm tra tính hợp lệ của token
             const verifyToken = verify(token);
+
             if (!verifyToken?.valid && !verifyToken?.expired) {
                 return response(res, 401, {
                     success: false,
@@ -27,6 +28,8 @@ const authMiddleware = async (req, res, next) => {
                 })
             }
             else if (verifyToken?.expired) {
+                if (req.query?.cart) return next();
+
                 return response(res, 410, {
                     success: false,
                     message: "Phiên đăng nhập đã hết hạn!"

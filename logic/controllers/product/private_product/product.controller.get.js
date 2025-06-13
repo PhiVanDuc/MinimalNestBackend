@@ -1,6 +1,6 @@
-const { Product, Discount, LivingSpace, Variant, ProductImage, Color, Size } = require("../../../db/models/index");
+const { Product, Discount, LivingSpace, Variant, ProductImage, Color, Size } = require("../../../../db/models/index");
 
-const response = require("../../../utils/response");
+const response = require("../../../../utils/response");
 
 module.exports = async (req, res) => {
     try {

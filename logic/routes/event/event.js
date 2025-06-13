@@ -9,7 +9,7 @@ const {
     add_event,
     edit_event,
     delete_event
-} = require("../controllers/event.controller");
+} = require("../../controllers/event/private_event/event.controller");
 
 // Lấy ra danh sách role
 router.get("/", get_events);

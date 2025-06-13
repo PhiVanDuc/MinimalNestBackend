@@ -1,12 +1,12 @@
 require("dotenv").config();
 
-const { Event, Coupon } = require("../../db/models/index");
+const { Event, Coupon } = require("../../../../db/models/index");
 const { Op } = require("sequelize");
 
 const slugify = require("slugify");
-const response = require("../../utils/response");
-const cloudinary = require("../../utils/cloudinary");
-const uploadToCloudinary = require("../../utils/cloudinary_upload");
+const response = require("../../../../utils/response");
+const cloudinary = require("../../../../utils/cloudinary");
+const uploadToCloudinary = require("../../../../utils/cloudinary_upload");
 
 const LIMIT = process.env.LIMIT
 
@@ -14,6 +14,7 @@ module.exports = {
     get_events: async (req, res) => {
         try {
             const all = req.query?.all;
+            const is_discount = req.query?.is_discount === 'true';
             const page = req.query?.page || 1;
             const event = (req.query?.event)?.trim() || "";
 
@@ -54,7 +55,11 @@ module.exports = {
                 });
             }
             else {
-                const allEvents = await Event.findAll();
+                const whereCondition = is_discount ? { event_type: 'discount' } : {};
+                const allEvents = await Event.findAll({
+                    where: whereCondition
+                });
+
                 return response(res, 200, {
                     success: true,
                     message: "Lấy danh sách sự kiện thành công!",
@@ -118,11 +123,11 @@ module.exports = {
 
     add_event: async (req, res) => {
         try {
-            const { event, desc, startDate, endDate } = req.body;
+            const { event, desc, link, eventType, startDate, endDate } = req.body;
             const image = req.file;
 
             // Kiểm tra dữ liệu
-            if (!image || !event || !desc || !startDate || !endDate) {
+            if (!image || !event || !desc || !eventType || !startDate || !endDate) {
                 return response(res, 400, {
                     success: false,
                     message: "Vui lòng cung cấp đủ dữ liệu!"
@@ -177,6 +182,8 @@ module.exports = {
                 slug,
                 event,
                 desc,
+                link,
+                event_type: eventType,
                 start_date: new Date(startDate),
                 end_date: new Date(endDate),
             });
@@ -202,11 +209,11 @@ module.exports = {
     edit_event: async (req, res) => {
         try {
             const paramSlug = req.params.slug;
-            const { event, desc, startDate, endDate } = req.body;
+            const { event, desc, link, eventType, startDate, endDate } = req.body;
             const image = req.file;
 
             // Kiểm tra dữ liệu
-            if (!event || !desc || !startDate || !endDate) {
+            if (!event || !desc || !eventType || !startDate || !endDate) {
                 return response(res, 400, {
                     success: false,
                     message: "Vui lòng cung cấp đủ dữ liệu!"
@@ -281,6 +288,8 @@ module.exports = {
                     slug,
                     event,
                     desc,
+                    link,
+                    event_type: eventType,
                     start_date: new Date(startDate),
                     end_date: new Date(endDate),
                 }
@@ -328,9 +337,7 @@ module.exports = {
             }
 
             // Xóa ảnh trên cloudinary
-            const image = findEvent?.image;
-            const imagePublicId = extractPublicId(image);
-            await cloudinary.uploader.destroy(imagePublicId);
+            await cloudinary.uploader.destroy(findEvent?.public_id);
 
             // Xóa sự kiện
             await findEvent.destroy();

@@ -54,7 +54,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true
     },
     customer_type: {
-      type: DataTypes.ENUM('all', 'first_time', 'new', 'vip'),
+      type: DataTypes.STRING,
       allowNull: false,
       defaultValue: 'all'
     }

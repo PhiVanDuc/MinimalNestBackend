@@ -1,9 +1,9 @@
 require("dotenv").config();
 
 const { Op } = require("sequelize");
-const { Coupon, Event } = require("../../db/models/index");
+const { Coupon, Event } = require("../../../../db/models/index");
 
-const response = require("../../utils/response");
+const response = require("../../../../utils/response");
 
 const LIMIT = process.env.LIMIT;
 

@@ -40,6 +40,14 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.TEXT,
       allowNull: false
     },
+    link: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    event_type: {
+      type: DataTypes.ENUM("discount", "promote-product"),
+      allowNull: false
+    },
     start_date: {
       type: DataTypes.DATE,
       allowNull: false

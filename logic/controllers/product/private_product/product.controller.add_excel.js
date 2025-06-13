@@ -1,10 +1,10 @@
-const { Product, Variant, ProductImage, ProductType, Category, LivingSpace, Color, Size, Inventory, sequelize } = require("../../../db/models/index");
+const { Product, Variant, ProductImage, ProductType, Category, LivingSpace, Color, Size, Inventory, sequelize } = require("../../../../db/models/index");
 const { Op } = require("sequelize");
 
 const xlsx = require("xlsx");
 const slugify = require("slugify");
-const response = require("../../../utils/response");
-const generate_sku_product = require("../../../utils/generate-sku-product");
+const response = require("../../../../utils/response");
+const generate_sku_product = require("../../../../utils/generate-sku-product");
 
 module.exports = async (req, res) => {
     const transaction = await sequelize.transaction();
@@ -299,13 +299,30 @@ module.exports = async (req, res) => {
             }
         }
 
+        if (invalidProducts?.length > 0) {
+            if (invalidProducts?.length === formattedData?.length) {
+                await transaction.rollback();
+                return response(res, 400, {
+                    success: false,
+                    message: "Không thể thêm bất kỳ sản phẩm nào!"
+                });
+            }
+
+            await transaction.commit();
+            return response(res, 200, {
+                success: true,
+                message: `Thêm thành công ${validProducts.length}/${formattedData.length} sản phẩm!`
+            });
+        }
+
         await transaction.commit();
         return response(res, 200, {
             success: true,
-            message: "Đã thêm các sản phẩm thành công!"
-        })
+            message: `Thêm thành công ${validProducts.length} sản phẩm!`
+        });
     }
     catch(error) {
+        await transaction.rollback;
         console.log(error);
         
         return response(res, 500, {

@@ -22,8 +22,9 @@ module.exports = {
                 color:      "Màu sắc",
                 size:       "Kích thước",
                 product:    "Sản phẩm",
+                inventory:  "Tồn kho",
                 order:      "Đơn hàng",
-                inventory:  "Kho hàng",
+                return:     "Trả hàng"
             };
 
             const temp = {};

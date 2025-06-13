@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('reserved_order_items', {
+    await queryInterface.createTable('book_addresses', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
@@ -10,39 +10,32 @@ module.exports = {
         unique: true,
         allowNull: false
       },
-      reserved_order_id: {
+      account_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: "reserved_orders",
+          model: "accounts",
           key: "id"
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE"
       },
-      product_id: {
-        type: Sequelize.UUID,
-        allowNull: false,
-        references: {
-          model: "products",
-          key: "id"
-        },
-        onUpdate: "CASCADE",
-        onDelete: "RESTRICT"
-      },
-      variant_id: {
-        type: Sequelize.UUID,
-        allowNull: false,
-        references: {
-          model: "variants",
-          key: "id"
-        },
-        onUpdate: "CASCADE",
-        onDelete: "RESTRICT"
-      },
-      quantity: {
-        type: Sequelize.INTEGER,
+      full_name: {
+        type: Sequelize.STRING,
         allowNull: false
+      },
+      phone_number: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      address: {
+        type: Sequelize.TEXT,
+        allowNull: false
+      },
+      default_address: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: true
       },
       created_at: {
         allowNull: false,
@@ -55,6 +48,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('reserved_order_items');
+    await queryInterface.dropTable('book_addresses');
   }
 };
