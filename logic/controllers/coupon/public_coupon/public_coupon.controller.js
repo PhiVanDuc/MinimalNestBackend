@@ -10,6 +10,7 @@ module.exports = {
         try {
             const page = req.query?.page || 1;
             const limit = +req.query?.limit || +LIMIT;
+            const event = req.query?.event || null;
 
             const offset = (+page - 1) * limit;
 
@@ -22,7 +23,12 @@ module.exports = {
                         model: Event,
                         as: 'event',
                         attributes: ["id", "event", "image", "start_date", "end_date"],
-                        where: { event_type: "discount" }
+                        where: {
+                            event_type: "discount",
+                            ...(event && {
+                                slug: event
+                            })
+                        }
                     }
                 ]
             });

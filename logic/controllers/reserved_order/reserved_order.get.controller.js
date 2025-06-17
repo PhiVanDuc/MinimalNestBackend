@@ -15,7 +15,7 @@ module.exports = async (req, res) => {
 
         // Lấy ra các sản phẩm
         const existingReservedOrder = await ReservedOrder.findByPk(reservedOrderId, {
-            attributes: ["id"],
+            attributes: ["id", "expired_at", "is_paid"],
             include: [
                 {
                     model: ReservedOrderItem,
@@ -82,9 +82,10 @@ module.exports = async (req, res) => {
                 id: item?.id,
                 quantity: item?.quantity,
                 product: item?.product,
+                variant_id: item?.variant?.id,
                 color: item?.variant?.color,
                 size: item?.variant?.size,
-                image: matchedImage || null
+                image: matchedImage || null,
             }
         });
 

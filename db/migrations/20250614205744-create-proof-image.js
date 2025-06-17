@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('reserved_orders', {
+    await queryInterface.createTable('proof_images', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
@@ -10,25 +10,23 @@ module.exports = {
         unique: true,
         allowNull: false
       },
-      account_id: {
+      return_goods_item_id: {
         type: Sequelize.UUID,
-        allowNull: false,
+        allowNull: true,
         references: {
-          model: "accounts",
+          model: "return_goods_items",
           key: "id"
         },
         onUpdate: "CASCADE",
-        onDelete: "CASCADE"
+        onDelete: "SET NULL"
       },
-      expired_at: {
-        type: Sequelize.DATE,
-        allowNull: false,
-        defaultValue: Sequelize.literal(`NOW() + INTERVAL '10 minutes'`)
+      url: {
+        type: Sequelize.TEXT,
+        allowNull: false
       },
-      is_paid: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: false
+      public_id: {
+        type: Sequelize.STRING,
+        allowNull: false
       },
       created_at: {
         allowNull: false,
@@ -41,6 +39,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('reserved_orders');
+    await queryInterface.dropTable('proof_images');
   }
 };

@@ -22,6 +22,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
+      date_of_birth: {
+        type: Sequelize.DATEONLY,
+        allowNull: true
+      },
       email: {
         type: Sequelize.STRING,
         unique: true,
@@ -30,6 +34,11 @@ module.exports = {
       password: {
         type: Sequelize.STRING,
         allowNull: false,
+      },
+      customer_type: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: "first_time_customer"
       },
       status: {
         type: Sequelize.ENUM('active', 'blocked'),

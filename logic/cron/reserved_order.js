@@ -2,7 +2,7 @@ const { sequelize, ReservedOrder, Inventory } = require("../../db/models");
 const { Op } = require("sequelize");
 
 const cron = require("node-cron");
-cron.schedule('*/2 * * * *', async () => {
+cron.schedule('*/5 * * * *', async () => {
     const transaction = await sequelize.transaction();
 
     try {
@@ -28,13 +28,11 @@ cron.schedule('*/2 * * * *', async () => {
                     transaction
                 });
 
-                if (!inventory) throw new Error("Không tìm thấy tồn kho");
-                if (inventory.reserved_quantity < item.quantity) {
-                    throw new Error(`Không thể trả lại ${item.quantity} vì kho chỉ còn giữ ${inventory.reserved_quantity}`);
-                }
+                if (!inventory) throw new Error("Không tìm thấy tồn kho của sản phẩm.");
 
+                const quantityToReturn = Math.min(inventory.reserved_quantity, item.quantity);
                 await inventory.increment(
-                    { reserved_quantity: -item.quantity },
+                    { reserved_quantity: -quantityToReturn },
                     { transaction }
                 );
             }

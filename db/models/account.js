@@ -21,6 +21,16 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "account_id",
         as: "book_addresses"
       });
+
+      Account.hasMany(models.Order, {
+        foreignKey: "account_id",
+        as: "orders"
+      });
+
+      Account.hasMany(models.ReturnGoods, {
+        foreignKey: "account_id",
+        as: "return_goods"
+      });
     }
   }
   Account.init({
@@ -43,6 +53,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    date_of_birth: {
+      type: DataTypes.DATEONLY,
+      allowNull: true
+    },
     email: {
       type: DataTypes.STRING,
       unique: true,
@@ -51,6 +65,11 @@ module.exports = (sequelize, DataTypes) => {
     password: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    customer_type: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: "first_time_customer"
     },
     status: {
       type: DataTypes.ENUM('active', 'blocked'),

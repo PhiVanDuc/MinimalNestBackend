@@ -13,6 +13,14 @@ module.exports = async (req, res) => {
             products = await Product.findAll({
                 include: [
                     {
+                        model: ProductImage,
+                        as: "product_images",
+                        where: {
+                            display_order: true
+                        },
+                        required: false
+                    },
+                    {
                         model: Discount,
                         as: "general_discount",
                         attributes: ['id', 'discount_name', 'discount_type', 'discount_amount'],

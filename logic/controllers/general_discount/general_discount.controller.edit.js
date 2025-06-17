@@ -1,4 +1,4 @@
-const { Discount, sequelize } = require("../../../db/models/index");
+const { Discount, sequelize, Product, LivingSpace, ProductType } = require("../../../db/models/index");
 const { Op } = require("sequelize");
 
 const slugify = require("slugify");
@@ -10,31 +10,30 @@ module.exports = async (req, res) => {
 
     try {
         const generalDiscountId = req.params?.generalDiscountId;
-        const { applyAll, productTypeIds, livingSpaceIds, categoryIds, discountName, discountType, discountAmount, productIds } = req.body || {};
+        const {
+            applyAll,
+            productTypeIds,
+            livingSpaceIds,
+            categoryIds,
+            discountName,
+            discountType,
+            discountAmount,
+            productIds
+        } = req.body || {};
 
-        // Kiểm tra dữ liệu
+        const hasAtLeastOneFilter =
+            (categoryIds?.length || 0) > 0 ||
+            (livingSpaceIds?.length || 0) > 0 ||
+            (productTypeIds?.length || 0) > 0;
+
         if (
             (
                 applyAll &&
-                (
-                    !discountName ||
-                    !discountType ||
-                    !discountAmount
-                )
+                (!discountName || !discountType || !discountAmount)
             ) ||
             (
                 !applyAll &&
-                (
-                    !productTypeIds ||
-                    !productTypeIds?.length ||
-                    !livingSpaceIds ||
-                    !livingSpaceIds?.length ||
-                    !categoryIds ||
-                    !categoryIds?.length ||
-                    !discountName ||
-                    !discountType ||
-                    !discountAmount
-                )
+                (!hasAtLeastOneFilter || !discountName || !discountType || !discountAmount)
             )
         ) {
             await transaction.rollback();
@@ -52,7 +51,6 @@ module.exports = async (req, res) => {
             });
         }
 
-        // Kiểm tra xem có tìm thấy giảm giá chung không
         const foundDiscount = await Discount.findByPk(generalDiscountId);
         if (!foundDiscount) {
             await transaction.rollback();
@@ -62,14 +60,12 @@ module.exports = async (req, res) => {
             });
         }
 
-        // Kiểm tra xem slug đã tồn tại chưa
         const slug = slugify(discountName, {
             lower: true,
             locale: 'vi',
             remove: /[*+~.()'"!:@]/g
         });
 
-        // Chỉ kiểm tra nếu slug mới KHÁC slug hiện tại
         if (slug !== foundDiscount.slug) {
             const existingDiscount = await Discount.findOne({
                 where: {
@@ -87,61 +83,86 @@ module.exports = async (req, res) => {
             }
         }
 
-        // Cập nhật giảm giá chung
+        // Cập nhật thông tin chính
         await foundDiscount.update({
             slug,
-            apply_all: !applyAll ? false : true,
+            apply_all: !!applyAll,
             discount_name: discountName,
             discount_type: discountType,
             discount_amount: parseFloat(discountAmount)
         }, { transaction });
 
-        await foundDiscount.setProduct_types(
-            applyAll ? [] : productTypeIds,
-            { transaction }
-        );
+        // Cập nhật các quan hệ N-N
+        await foundDiscount.setProduct_types(applyAll ? [] : productTypeIds || [], { transaction });
+        await foundDiscount.setCategories(applyAll ? [] : categoryIds || [], { transaction });
+        await foundDiscount.setLiving_spaces(applyAll ? [] : livingSpaceIds || [], { transaction });
 
-        await foundDiscount.setCategories(
-            applyAll ? [] : categoryIds,
-            { transaction }
-        );
-        
-        await foundDiscount.setLiving_spaces(
-            applyAll ? [] : livingSpaceIds,
-            { transaction }
-        );
+        // Tự động lọc sản phẩm nếu không truyền productIds
+        let productIdsToUpdate = productIds;
 
-        if (productIds?.length > 0) {
-            const currentProducts = await foundDiscount.getProducts({ transaction });
-            const currentProductIds = currentProducts.map(p => p.id);
-            
-            const idsToAdd = productIds.filter(id => !currentProductIds.includes(id));
-            const idsToRemove = currentProductIds.filter(id => !productIds.includes(id));
-            
-            if (idsToAdd.length > 0) {
-                await sequelize.models.Product.update(
-                    { general_discount_id: foundDiscount.id },
-                    {
-                        where: { id: { [Op.in]: idsToAdd } },
-                        transaction
-                    }
-                );
+        if (!productIdsToUpdate || productIdsToUpdate.length === 0) {
+            const orConditions = [];
+
+            if (categoryIds?.length) {
+                orConditions.push({ category_id: { [Op.in]: categoryIds } });
             }
-            
-            if (idsToRemove.length > 0) {
-                await sequelize.models.Product.update(
-                    { general_discount_id: null },
-                    {
-                        where: { id: { [Op.in]: idsToRemove } },
-                        transaction
-                    }
-                );
+
+            if (livingSpaceIds?.length) {
+                orConditions.push({ '$living_spaces.id$': { [Op.in]: livingSpaceIds } });
             }
-        } else {
-            await sequelize.models.Product.update(
+
+            if (productTypeIds?.length) {
+                orConditions.push({ '$product_types.id$': { [Op.in]: productTypeIds } });
+            }
+
+            const filteredProducts = await Product.findAll({
+                where: {
+                    [Op.or]: orConditions
+                },
+                include: [
+                    {
+                        model: LivingSpace,
+                        as: "living_spaces",
+                        attributes: [],
+                        through: { attributes: [] },
+                        required: false
+                    },
+                    {
+                        model: ProductType,
+                        as: "product_types",
+                        attributes: [],
+                        through: { attributes: [] },
+                        required: false
+                    }
+                ],
+                attributes: ['id']
+            });
+
+            productIdsToUpdate = filteredProducts.map(p => p.id);
+        }
+
+        // Update lại các product liên quan
+        const currentProducts = await foundDiscount.getProducts({ transaction });
+        const currentProductIds = currentProducts.map(p => p.id);
+
+        const idsToAdd = productIdsToUpdate.filter(id => !currentProductIds.includes(id));
+        const idsToRemove = currentProductIds.filter(id => !productIdsToUpdate.includes(id));
+
+        if (idsToAdd.length > 0) {
+            await Product.update(
+                { general_discount_id: foundDiscount.id },
+                {
+                    where: { id: { [Op.in]: idsToAdd } },
+                    transaction
+                }
+            );
+        }
+
+        if (idsToRemove.length > 0) {
+            await Product.update(
                 { general_discount_id: null },
                 {
-                    where: { general_discount_id: foundDiscount.id },
+                    where: { id: { [Op.in]: idsToRemove } },
                     transaction
                 }
             );
@@ -151,15 +172,14 @@ module.exports = async (req, res) => {
         return response(res, 200, {
             success: true,
             message: "Chỉnh sửa giảm giá chung thành công!"
-        })
-    }
-    catch(error) {
+        });
+
+    } catch (error) {
         await transaction.rollback();
         console.log(error);
-        
         return response(res, 500, {
             success: false,
             message: "Lỗi server!"
-        })
+        });
     }
 }

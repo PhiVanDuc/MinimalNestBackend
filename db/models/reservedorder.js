@@ -36,6 +36,11 @@ module.exports = (sequelize, DataTypes) => {
         now.setMinutes(now.getMinutes() + 10);
         return now;
       }
+    },
+    is_paid: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
     }
   }, {
     sequelize,

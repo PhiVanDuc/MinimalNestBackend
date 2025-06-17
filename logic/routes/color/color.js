@@ -7,7 +7,7 @@ const {
     add_color,
     edit_color,
     delete_color
-} = require("../controllers/color.controller");
+} = require("../../controllers/color/color.controller");
 
 // Lấy ra danh sách màu sắc
 router.get("/", get_colors);

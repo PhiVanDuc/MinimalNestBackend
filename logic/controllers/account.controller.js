@@ -2,6 +2,8 @@ require("dotenv").config();
 
 const { Op } = require("sequelize");
 const { Role, Account, sequelize } = require("../../db/models/index");
+
+const bcrypt = require("bcryptjs");
 const response = require("../../utils/response");
 
 const LIMIT = process.env.LIMIT;
@@ -152,6 +154,106 @@ module.exports = {
         }
         catch(error) {
             await transaction.rollback();
+            console.log(error);
+            
+            return response(res, 500, {
+                success: false,
+                message: "Lỗi server!"
+            });
+        }
+    },
+
+    profile_change_info: async (req, res) => {
+        try {
+            const { accountId } = req.params || {};
+            const { firstName, lastName, dateOfBirth } = req.body || {};
+
+            if (!accountId || !firstName || !lastName) {
+                return response(res, 400, {
+                    success: false,
+                    message: "Vui lòng cung cấp đầy đủ thông tin!"
+                });
+            }
+
+            const account = await Account.findByPk(accountId);
+            if (!account) {
+                return response(res, 404, {
+                    success: false,
+                    message: "Không tìm thấy tài khoản!"
+                });
+            }
+
+            account.first_name = firstName;
+            account.last_name = lastName;
+            account.full_name = `${lastName} ${firstName}`;
+            account.date_of_birth = dateOfBirth || null;
+
+            await account.save();
+
+            return response(res, 200, {
+                success: true,
+                message: "Cập nhật thông tin thành công!",
+            });
+        }
+        catch(error) {
+            console.log(error);
+            
+            return response(res, 500, {
+                success: false,
+                message: "Lỗi server!"
+            });
+        }
+    },
+
+    profile_change_password: async (req, res) => {
+        try {
+            const { accountId } = req.params || {};
+            const { oldPassword, newPassword, confirmNewPassword } = req.body || {};
+
+            if (!accountId || !oldPassword || !newPassword || !confirmNewPassword) {
+                return response(res, 400, {
+                    success: false,
+                    message: "Vui lòng cung cấp đầy đủ thông tin!"
+                });
+            }
+
+            const account = await Account.findOne({
+                where: { id: accountId }
+            });
+
+            if (!account) {
+                return response(res, 404, {
+                    success: false,
+                    message: "Không tìm thấy tài khoản!"
+                });
+            }
+
+            const isMatch = await bcrypt.compare(oldPassword, account.password);
+            if (!isMatch) {
+                return response(res, 401, {
+                    success: false,
+                    message: "Mật khẩu cũ không đúng!"
+                });
+            }
+
+            if (newPassword !== confirmNewPassword) {
+                return response(res, 400, {
+                    success: false,
+                    message: "Mật khẩu xác nhận không khớp!"
+                });
+            }
+
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+            await account.update({
+                password: hashedPassword
+            });
+
+            return response(res, 200, {
+                success: true,
+                message: "Đổi mật khẩu thành công!"
+            });
+        }
+        catch(error) {
             console.log(error);
             
             return response(res, 500, {

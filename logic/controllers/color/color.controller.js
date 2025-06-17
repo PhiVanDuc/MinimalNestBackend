@@ -1,9 +1,9 @@
 require("dotenv").config();
-const { Color } = require("../../db/models/index");
+const { Color } = require("../../../db/models/index");
 const { Op } = require("sequelize");
 
 const slugify = require("slugify");
-const response = require("../../utils/response");
+const response = require("../../../utils/response");
 
 const LIMIT = process.env.LIMIT;
 

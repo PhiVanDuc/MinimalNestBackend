@@ -7,10 +7,10 @@ const {
     get_public_product
 } = require("../../controllers/product/public_product/public_product.controller");
 
-// Lấy ra danh sách vai trò
+// Lấy ra danh sách sản phẩm
 router.get("/", get_public_products);
 
-// Lấy danh sách vai trò (không lọc và phân trang)
+// Lấy danh sách sản phẩm (không lọc và phân trang)
 router.get("/all", get_all_public_products);
 
 // Lấy ra sản phẩm cụ thể

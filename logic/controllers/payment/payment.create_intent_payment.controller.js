@@ -12,7 +12,7 @@ module.exports = async (req, res) => {
         const paymentIntent = await stripe.paymentIntents.create({
             amount: amount,
             currency: 'vnd',
-            automatic_payment_methods: { enabled: true }
+            automatic_payment_methods: { enabled: true },
         });
 
         return response(res, 200, {
