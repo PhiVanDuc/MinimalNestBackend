@@ -28,8 +28,6 @@ const authMiddleware = async (req, res, next) => {
                 })
             }
             else if (verifyToken?.expired) {
-                if (req.query?.cart) return next();
-
                 return response(res, 410, {
                     success: false,
                     message: "Phiên đăng nhập đã hết hạn!"
