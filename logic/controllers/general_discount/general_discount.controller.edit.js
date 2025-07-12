@@ -21,21 +21,8 @@ module.exports = async (req, res) => {
             productIds
         } = req.body || {};
 
-        const hasAtLeastOneFilter =
-            (categoryIds?.length || 0) > 0 ||
-            (livingSpaceIds?.length || 0) > 0 ||
-            (productTypeIds?.length || 0) > 0;
-
-        if (
-            (
-                applyAll &&
-                (!discountName || !discountType || !discountAmount)
-            ) ||
-            (
-                !applyAll &&
-                (!hasAtLeastOneFilter || !discountName || !discountType || !discountAmount)
-            )
-        ) {
+        // Kiểm tra dữ liệu đầu vào
+        if (!discountName || !discountType || !discountAmount) {
             await transaction.rollback();
             return response(res, 400, {
                 success: false,
@@ -47,14 +34,14 @@ module.exports = async (req, res) => {
             await transaction.rollback();
             return response(res, 400, {
                 success: false,
-                message: "Sai định dạng số!"
+                message: "Số tiền giảm giá không hợp lệ!"
             });
         }
 
         const foundDiscount = await Discount.findByPk(generalDiscountId);
         if (!foundDiscount) {
             await transaction.rollback();
-            return response(res, 400, {
+            return response(res, 404, {
                 success: false,
                 message: "Không tìm thấy giảm giá chung!"
             });
@@ -78,7 +65,7 @@ module.exports = async (req, res) => {
                 await transaction.rollback();
                 return response(res, 400, {
                     success: false,
-                    message: "Tên giảm giá chung đã tồn tại, vui lòng chọn tên khác!"
+                    message: "Tên giảm giá chung đã tồn tại!"
                 });
             }
         }
@@ -97,57 +84,67 @@ module.exports = async (req, res) => {
         await foundDiscount.setCategories(applyAll ? [] : categoryIds || [], { transaction });
         await foundDiscount.setLiving_spaces(applyAll ? [] : livingSpaceIds || [], { transaction });
 
-        // Tự động lọc sản phẩm nếu không truyền productIds
+        // Xác định danh sách sản phẩm cần cập nhật
         let productIdsToUpdate = productIds;
 
         if (!productIdsToUpdate || productIdsToUpdate.length === 0) {
-            const orConditions = [];
+            if (applyAll) {
+                // Nếu applyAll là true, lấy tất cả sản phẩm
+                const allProducts = await Product.findAll({ attributes: ['id'] });
+                productIdsToUpdate = allProducts.map(p => p.id);
+            } else {
+                // Nếu không applyAll thì lọc theo điều kiện
+                const whereConditions = [];
 
-            if (categoryIds?.length) {
-                orConditions.push({ category_id: { [Op.in]: categoryIds } });
+                if (categoryIds?.length > 0) {
+                    whereConditions.push({ category_id: { [Op.in]: categoryIds } });
+                }
+
+                if (livingSpaceIds?.length > 0) {
+                    whereConditions.push({ '$living_spaces.id$': { [Op.in]: livingSpaceIds } });
+                }
+
+                if (productTypeIds?.length > 0) {
+                    whereConditions.push({ '$product_types.id$': { [Op.in]: productTypeIds } });
+                }
+
+                if (whereConditions.length > 0) {
+                    const filteredProducts = await Product.findAll({
+                        where: {
+                            [Op.or]: whereConditions
+                        },
+                        include: [
+                            {
+                                model: LivingSpace,
+                                as: "living_spaces",
+                                attributes: [],
+                                through: { attributes: [] },
+                                required: false
+                            },
+                            {
+                                model: ProductType,
+                                as: "product_types",
+                                attributes: [],
+                                through: { attributes: [] },
+                                required: false
+                            }
+                        ],
+                        attributes: ['id']
+                    });
+                    productIdsToUpdate = filteredProducts.map(p => p.id);
+                }
             }
-
-            if (livingSpaceIds?.length) {
-                orConditions.push({ '$living_spaces.id$': { [Op.in]: livingSpaceIds } });
-            }
-
-            if (productTypeIds?.length) {
-                orConditions.push({ '$product_types.id$': { [Op.in]: productTypeIds } });
-            }
-
-            const filteredProducts = await Product.findAll({
-                where: {
-                    [Op.or]: orConditions
-                },
-                include: [
-                    {
-                        model: LivingSpace,
-                        as: "living_spaces",
-                        attributes: [],
-                        through: { attributes: [] },
-                        required: false
-                    },
-                    {
-                        model: ProductType,
-                        as: "product_types",
-                        attributes: [],
-                        through: { attributes: [] },
-                        required: false
-                    }
-                ],
-                attributes: ['id']
-            });
-
-            productIdsToUpdate = filteredProducts.map(p => p.id);
         }
 
-        // Update lại các product liên quan
+        // Lấy danh sách sản phẩm hiện tại có discount này
         const currentProducts = await foundDiscount.getProducts({ transaction });
         const currentProductIds = currentProducts.map(p => p.id);
 
+        // Xác định sản phẩm cần thêm và xóa
         const idsToAdd = productIdsToUpdate.filter(id => !currentProductIds.includes(id));
         const idsToRemove = currentProductIds.filter(id => !productIdsToUpdate.includes(id));
 
+        // Cập nhật discount cho sản phẩm mới
         if (idsToAdd.length > 0) {
             await Product.update(
                 { general_discount_id: foundDiscount.id },
@@ -158,6 +155,7 @@ module.exports = async (req, res) => {
             );
         }
 
+        // Xóa discount khỏi sản phẩm không còn áp dụng
         if (idsToRemove.length > 0) {
             await Product.update(
                 { general_discount_id: null },
@@ -171,12 +169,15 @@ module.exports = async (req, res) => {
         await transaction.commit();
         return response(res, 200, {
             success: true,
-            message: "Chỉnh sửa giảm giá chung thành công!"
+            message: "Cập nhật giảm giá chung thành công!",
+            data: {
+                discount: foundDiscount
+            }
         });
 
     } catch (error) {
         await transaction.rollback();
-        console.log(error);
+        console.error(error);
         return response(res, 500, {
             success: false,
             message: "Lỗi server!"

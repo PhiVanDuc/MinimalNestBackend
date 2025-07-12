@@ -22,15 +22,6 @@ module.exports = async (req, res) => {
                     as: "living_spaces",
                     attributes: ["id"],
                     through: { attributes: [] }
-                },
-                {
-                    model: Product,
-                    as: "products",
-                    attributes: ["id"],
-                    where: {
-                        general_discount_id: { [require("sequelize").Op.ne]: null }
-                    },
-                    required: false
                 }
             ]
         });
@@ -53,7 +44,7 @@ module.exports = async (req, res) => {
                 productTypeIds,
                 categoryIds,
                 livingSpaceIds,
-                productIds: data?.products
+                productIds: []
             }
 
             return result;

@@ -93,44 +93,51 @@ module.exports = async (req, res) => {
         let productIdsToUpdate = productIds;
 
         if (!productIdsToUpdate || productIdsToUpdate.length === 0) {
-            const orConditions = [];
+            if (applyAll) {
+                const allProducts = await Product.findAll({
+                    attributes: ['id']
+                });
+                productIdsToUpdate = allProducts.map(p => p.id);
+            } else {
+                const orConditions = [];
 
-            if (categoryIds?.length > 0) {
-                orConditions.push({ category_id: { [Op.in]: categoryIds } });
-            }
+                if (categoryIds?.length > 0) {
+                    orConditions.push({ category_id: { [Op.in]: categoryIds } });
+                }
 
-            if (livingSpaceIds?.length > 0) {
-                orConditions.push({ '$living_spaces.id$': { [Op.in]: livingSpaceIds } });
-            }
+                if (livingSpaceIds?.length > 0) {
+                    orConditions.push({ '$living_spaces.id$': { [Op.in]: livingSpaceIds } });
+                }
 
-            if (productTypeIds?.length > 0) {
-                orConditions.push({ '$product_types.id$': { [Op.in]: productTypeIds } });
-            }
+                if (productTypeIds?.length > 0) {
+                    orConditions.push({ '$product_types.id$': { [Op.in]: productTypeIds } });
+                }
 
-            const filteredProducts = await Product.findAll({
-                where: {
-                    [Op.or]: orConditions
-                },
-                include: [
-                    {
-                        model: LivingSpace,
-                        as: "living_spaces",
-                        attributes: [],
-                        through: { attributes: [] },
-                        required: false
+                const filteredProducts = await Product.findAll({
+                    where: {
+                        [Op.or]: orConditions
                     },
-                    {
-                        model: ProductType,
-                        as: "product_types",
-                        attributes: [],
-                        through: { attributes: [] },
-                        required: false
-                    }
-                ],
-                attributes: ['id']
-            });
+                    include: [
+                        {
+                            model: LivingSpace,
+                            as: "living_spaces",
+                            attributes: [],
+                            through: { attributes: [] },
+                            required: false
+                        },
+                        {
+                            model: ProductType,
+                            as: "product_types",
+                            attributes: [],
+                            through: { attributes: [] },
+                            required: false
+                        }
+                    ],
+                    attributes: ['id']
+                });
 
-            productIdsToUpdate = filteredProducts.map(p => p.id);
+                productIdsToUpdate = filteredProducts.map(p => p.id);
+            }
         }
 
         // Cập nhật discount_id cho các sản phẩm được lọc

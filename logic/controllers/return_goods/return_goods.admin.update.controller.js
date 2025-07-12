@@ -1,4 +1,4 @@
-const { ReturnGoods, ReturnGoodsItem, Variant, Inventory, Account, Order, sequelize } = require("../../../db/models");
+const { ReturnGoods, ReturnGoodsItem, Variant, Inventory, sequelize } = require("../../../db/models");
 const response = require("../../../utils/response");
 
 const cancelMessages = [
@@ -11,39 +11,6 @@ const cancelMessages = [
     "Đơn vị vận chuyển huỷ lịch lấy hàng do lý do kỹ thuật hoặc vận hành.",
     "Khách yêu cầu dời lịch lấy hàng sang thời điểm khác."
 ];
-
-async function updateCustomerType(accountId, transaction) {
-    const fulfilledOrders = await Order.findAll({
-        where: {
-            account_id: accountId,
-            status: "fulfilled"
-        },
-        attributes: ["id"],
-        transaction
-    });
-    const totalFulfilled = fulfilledOrders.length;
-
-    const returnGoods = await ReturnGoods.findAll({
-        where: { account_id: accountId },
-        attributes: ["id"],
-        transaction
-    });
-    const totalReturned = returnGoods.length;
-
-    const successfulCount = Math.max(totalFulfilled - totalReturned, 0);
-
-    let customer_type = "first_time_customer";
-    if (successfulCount >= 5) {
-        customer_type = "vip_customer";
-    } else if (successfulCount >= 1) {
-        customer_type = "new_customer";
-    }
-
-    await Account.update({ customer_type }, {
-        where: { id: accountId },
-        transaction
-    });
-}
 
 module.exports = async (req, res) => {
     const transaction = await sequelize.transaction();
@@ -114,10 +81,6 @@ module.exports = async (req, res) => {
                 }
 
                 updateData.status = "fulfilled";
-
-                if (existingReturnGoods.account_id) {
-                    await updateCustomerType(existingReturnGoods.account_id, transaction);
-                }
             }
             else {
                 updateData = {
