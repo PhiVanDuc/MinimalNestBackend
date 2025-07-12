@@ -86,8 +86,6 @@ module.exports = async (req, res) => {
                 }
                 catch(error) {
                     if (error instanceof OptimisticLockError) {
-                        // Lỗi do xung đột version (conflict version)
-                        // Sau 1 khoảng thời gian thì retry
                         await new Promise(r => setTimeout(r, 50 * attempt));
                     }
                     else {

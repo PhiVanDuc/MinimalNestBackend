@@ -10,6 +10,8 @@ module.exports = async (req, res) => {
         const { returnGoodsId } = req.params || {};
 
         const returnGoods = await ReturnGoods.findByPk(returnGoodsId);
+        console.log(returnGoods);
+
         if (!returnGoods) {
             return response(res, 404, {
                 success: false,

@@ -73,6 +73,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.TEXT,
       allowNull: true,
     },
+    is_return: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
+    },
     total_order_discount: {
       type: DataTypes.DECIMAL(12, 2),
       allowNull: true

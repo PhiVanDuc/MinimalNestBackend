@@ -146,8 +146,7 @@ async function handleShippingOrders(orderIds, transaction) {
             if (updateData.status === "fulfilled") {
                 await updateCustomerType(order.account_id, transaction);
             }
-
-            if (order.payment_method === "stripe" && order.payment_intent_id) {
+            else if (order.payment_method === "stripe" && order.payment_intent_id) {
                 try {
                     await stripe.refunds.create({ payment_intent: order.payment_intent_id });
                 } catch (err) {

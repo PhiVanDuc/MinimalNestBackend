@@ -29,6 +29,7 @@ const bookAddressRouter = require("./book_address");
 const paymentRouter = require("./payment");
 const orderRouter = require("./order");
 const returnGoodsRouter = require("./return_goods");
+const dashboardRouter = require("./dashboard");
 
 // Các đường dẫn công khai
 router.get('/', function(req, res, next) {
@@ -67,6 +68,7 @@ protectedRouter.use('/book_addresses', bookAddressRouter);
 protectedRouter.use('/payment', paymentRouter);
 protectedRouter.use('/orders', orderRouter);
 protectedRouter.use('/return_goods', returnGoodsRouter);
+protectedRouter.use('/dashboard', dashboardRouter);
 
 // Sử dụng các đường dẫn cần bảo vệ
 router.use(protectedRouter);

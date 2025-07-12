@@ -120,6 +120,7 @@ module.exports = async (req, res) => {
             size: prod?.size?.size,
             size_desc: prod?.size?.desc,
             quantity: prod?.quantity,
+            cost_price: prod?.cost_price,
             price_discount: prod?.price_discount || null,
             price: prod?.price,
             sub_total: prod?.price_discount

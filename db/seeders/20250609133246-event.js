@@ -12,20 +12,6 @@ module.exports = {
     await queryInterface.bulkInsert('events', [
       {
         id: uuidv4(),
-        image: 'https://res.cloudinary.com/dhsdqfv5f/image/upload/v1749475890/events/Event_2_qzt12r.webp',
-        public_id: 'event1_public_id',
-        slug: 'vat-lieu-xanh-cho-nha-them-xanh-mat',
-        event: 'Vật liệu xanh cho nhà thêm xanh mát',
-        desc: 'Sự kiện quảng bá sản phẩm mới với mục tiêu bảo vệ môi trường.',
-        link: '',
-        event_type: 'promote-product',
-        start_date: today,
-        end_date: endDate,
-        created_at: new Date(),
-        updated_at: new Date()
-      },
-      {
-        id: uuidv4(),
         image: 'https://res.cloudinary.com/dhsdqfv5f/image/upload/v1749479101/events/Event_2_ld5wol.png',
         public_id: 'event2_public_id',
         slug: 'giam-gia-mua-he-2025',

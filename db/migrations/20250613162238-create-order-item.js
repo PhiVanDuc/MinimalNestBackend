@@ -68,6 +68,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false
       },
+      cost_price: {
+        type: Sequelize.DECIMAL(12, 2),
+        allowNull: false
+      },
       price_discount: {
         type: Sequelize.DECIMAL(12, 2),
         allowNull: true

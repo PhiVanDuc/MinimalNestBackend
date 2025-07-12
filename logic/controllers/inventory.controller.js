@@ -12,13 +12,19 @@ module.exports = {
     analysis_inventory: async (req, res) => {
         try {
             const all = await Inventory.findAll({
-                attributes: ['total_quantity']
+                attributes: ['total_quantity', 'reserved_quantity']
             });
 
-            const quantities = all.map(item => item.get({ plain: true })?.total_quantity || 0);
-            const totalItems = quantities.length;
+            const availableQuantities = all.map(item => {
+                const plainItem = item.get({ plain: true });
+                return Math.max(
+                    0,
+                    (plainItem?.total_quantity || 0) - (plainItem?.reserved_quantity || 0)
+                );
+            });
+            const totalItems = availableQuantities.length;
 
-            const { manyInStock, inStock, lowStock } = quantities.reduce(
+            const { manyInStock, inStock, lowStock } = availableQuantities.reduce(
                 (acc, num) => ({
                     manyInStock: acc.manyInStock + (num >= 50 ? 1 : 0),
                     inStock: acc.inStock + (num >= 16 && num <= 49 ? 1 : 0),
@@ -120,10 +126,26 @@ module.exports = {
                 ],
             });
 
+            // const formatRows = rows.map(row => {
+            //     const plainData = row.get({ plain: true });
+                
+            //     // Xử lý product_images thành image
+            //     if (plainData.variant?.product?.product_images?.length > 0) {
+            //         plainData.variant.product.image = plainData.variant.product.product_images[0].url;
+            //         delete plainData.variant.product.product_images;
+            //     }
+                
+            //     return plainData;
+            // });
+
             const formatRows = rows.map(row => {
                 const plainData = row.get({ plain: true });
                 
-                // Xử lý product_images thành image
+                plainData.available_quantity = Math.max(
+                    0, 
+                    (plainData.total_quantity || 0) - (plainData.reserved_quantity || 0)
+                );
+                
                 if (plainData.variant?.product?.product_images?.length > 0) {
                     plainData.variant.product.image = plainData.variant.product.product_images[0].url;
                     delete plainData.variant.product.product_images;

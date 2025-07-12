@@ -25,6 +25,16 @@ module.exports = {
         default_address: true,
         created_at: new Date(),
         updated_at: new Date()
+      },
+      {
+        id: uuidv4(),
+        account_id: accountId,
+        full_name: "Phí Văn Đức",
+        phone_number: '0328895451',
+        address: 'Trường Đại học Thủy Lợi, 175 Tây Sơn, Đống Đa, Hà Nội - Địa chỉ 2',
+        default_address: true,
+        created_at: new Date(),
+        updated_at: new Date()
       }
     ]);
   },

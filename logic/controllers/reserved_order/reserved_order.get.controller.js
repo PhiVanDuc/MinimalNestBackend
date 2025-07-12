@@ -1,10 +1,10 @@
-const { ReservedOrder, ReservedOrderItem, Product, ProductImage, Variant, Color, Size, Discount, Event, Coupon } = require("../../../db/models/index");
+const { Account, ReservedOrder, ReservedOrderItem, Product, ProductImage, Variant, Color, Size, Discount, Event, Coupon } = require("../../../db/models/index");
 
 const response = require("../../../utils/response");
 
 module.exports = async (req, res) => {
     try {
-        const reservedOrderId = req.params?.reservedOrderId
+        const { accountId, reservedOrderId } = req.query || {}
 
         if (!reservedOrderId) {
             return response(res, 400, {
@@ -66,9 +66,9 @@ module.exports = async (req, res) => {
         });
 
         if (!existingReservedOrder) {
-            return response(res, 401, {
+            return response(res, 404, {
                 success: false,
-                message: "Đơn hàng tạm thời không tồn tại!"
+                message: "Đơn hàng không tồn tại!"
             });
         }
 
@@ -126,14 +126,24 @@ module.exports = async (req, res) => {
             totalQuantity += item.quantity;
             totalOrder += lineTotal;
         });
-        totalOrder = +totalOrder.toFixed(2); 
+        totalOrder = +totalOrder.toFixed(2);
+
+        // Lấy ra loại khách hàng
+        const account = await Account.findByPk(accountId);
+
+        if (!account) {
+            return response(res, 404, {
+                success: false,
+                message: "Không tìm thấy người dnùg!"
+            });
+        }
 
         // Lấy ra các phiếu giảm giá
         const now = new Date();
         const coupons = await Coupon.findAll({
             attributes: [
                 "id", "code", "desc", "discount_type", "discount_price", "quantity",
-                "min_order_total", "min_items", "event_id"
+                "min_order_total", "min_items", "event_id", "customer_type"
             ],
             include: [
                 {
@@ -149,7 +159,8 @@ module.exports = async (req, res) => {
                 quantity,
                 min_order_total,
                 min_items,
-                event
+                event,
+                customer_type
             } = coupon;
 
             const isQuantityValid = quantity > 0;
@@ -165,7 +176,10 @@ module.exports = async (req, res) => {
             const isMinItemsValid =
                 min_items === null || totalQuantity >= parseInt(min_items);
 
-            return isQuantityValid && isWithinEventTime && isMinOrderValid && isMinItemsValid;
+            const isCustomerTypeValid =
+                !customer_type || customer_type === account.customer_type || customer_type === "all";
+
+            return isQuantityValid && isWithinEventTime && isMinOrderValid && isMinItemsValid && isCustomerTypeValid;
         });
 
         return response(res, 200, {
