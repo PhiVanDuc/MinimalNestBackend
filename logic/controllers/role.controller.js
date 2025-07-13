@@ -31,7 +31,12 @@ module.exports = {
                 const { count, rows } = await Role.findAndCountAll({
                     limit,
                     offset,
-                    where: whereCondition,
+                    where: {
+                        ...whereCondition,
+                        slug: {
+                            [Op.not]: "sieu-quan-tri"
+                        }
+                    },
                     order: [['created_at', 'DESC']],
                     include: [
                         {
@@ -67,7 +72,13 @@ module.exports = {
                 });
             }
             else {
-                const allRoles = await Role.findAll();
+                const allRoles = await Role.findAll({
+                    where: {
+                        slug: {
+                            [Op.not]: "sieu-quan-tri"
+                        }
+                    }
+                });
                 return response(res, 200, {
                     success: true,
                     message: "Lấy danh sách vai trò thành công!",

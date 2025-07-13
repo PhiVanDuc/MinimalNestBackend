@@ -2,7 +2,7 @@ const { sequelize, Product, ProductType, OrderItem, Order } = require("../../db/
 const { Op, literal } = require("sequelize");
 
 const cron = require("node-cron");
-cron.schedule("0 0 * * *", async () => {
+cron.schedule("*/1 * * * *", async () => {
     const transaction = await sequelize.transaction();
 
     try {

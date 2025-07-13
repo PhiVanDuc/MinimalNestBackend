@@ -1,62 +1,83 @@
-const { Product, OrderItem, ProductImage, Discount, Category, Variant, Color, Size } = require("../../../db/models/index");
+const { Product, OrderItem, ProductImage, Discount, Category, Variant, Color, Size, sequelize } = require("../../../db/models/index");
 const response = require("../../../utils/response");
 
 module.exports = async (req, res) => {
     try {
-        const bestSellingProducts = await OrderItem.findAll({
+        const productTotals = await OrderItem.findAll({
             attributes: [
                 'product_id',
                 [sequelize.fn('SUM', sequelize.col('quantity')), 'total_quantity']
             ],
             group: ['product_id'],
+            having: sequelize.where(sequelize.fn('SUM', sequelize.col('quantity')), '>', 0),
             order: [[sequelize.literal('total_quantity'), 'DESC']],
-            limit: 10,
+            limit: 5,
+            raw: true
+        });
+
+        if (productTotals.length === 0) {
+            return response(res, 200, {
+                success: true,
+                message: "Không có sản phẩm nào được bán",
+                data: { products: [] }
+            });
+        }
+
+        const productIds = productTotals.map(item => item.product_id);
+        const products = await Product.findAll({
+            where: {
+                id: productIds
+            },
             include: [
                 {
-                    model: Product,
-                    as: "product",
+                    model: ProductImage,
+                    as: "product_images",
+                    where: {
+                        display_order: true
+                    },
+                    required: false
+                },
+                {
+                    model: Discount,
+                    as: "general_discount",
+                    attributes: ['id', 'discount_name', 'discount_type', 'discount_amount']
+                },
+                {
+                    model: Category,
+                    as: "category"
+                },
+                {
+                    model: Variant,
+                    as: "variants",
                     include: [
                         {
-                            model: ProductImage,
-                            as: "product_images",
-                            where: {
-                                display_order: true
-                            },
-                            required: false
+                            model: Color,
+                            as: "color"
                         },
                         {
-                            model: Discount,
-                            as: "general_discount",
-                            attributes: ['id', 'discount_name', 'discount_type', 'discount_amount']
-                        },
-                        {
-                            model: Category,
-                            as: "category"
-                        },
-                        {
-                            model: Variant,
-                            as: "variants",
-                            include: [
-                                {
-                                    model: Color,
-                                    as: "color"
-                                },
-                                {
-                                    model: Size,
-                                    as: "size"
-                                }
-                            ]
+                            model: Size,
+                            as: "size"
                         }
                     ]
                 }
             ]
         });
 
-        const formatProducts = bestSellingProducts.map(item => {
-            const product = item.product?.get({ plain: true });
-            if (!product) return null;
+        const productTotalMap = productTotals.reduce((map, item) => {
+            map[item.product_id] = item.total_quantity;
+            return map;
+        }, {});
 
-            const variants = product?.variants || [];
+        // Sắp xếp sản phẩm theo thứ tự giống với productTotals (số lượng bán giảm dần)
+        const sortedProducts = products
+            .map(product => product.get({ plain: true }))
+            .sort((a, b) => productTotalMap[b.id] - productTotalMap[a.id]);
+
+        const formatProducts = sortedProducts.map(plainProduct => {
+            const totalSold = productTotalMap[plainProduct.id] || 0;
+
+            // Xử lý variants để lấy colors và sizes
+            const variants = plainProduct.variants || [];
             const colors = [];
             const sizes = [];
 
@@ -80,22 +101,21 @@ module.exports = async (req, res) => {
             );
 
             return {
-                id: product?.id,
-                slug: product?.slug,
-                product: product?.product,
-                image: product?.product_images[0]?.url,
-                category: product?.category,
-                cost_price: product?.cost_price,
-                interest_rate: product?.interest_rate,
-                general_discount: product?.general_discount,
-                discount_type: product?.discount_type,
-                discount_amount: product?.discount_amount,
+                id: plainProduct.id,
+                slug: plainProduct.slug,
+                product: plainProduct.product,
+                image: plainProduct.product_images?.[0]?.url,
+                category: plainProduct.category,
+                cost_price: plainProduct.cost_price,
+                interest_rate: plainProduct.interest_rate,
+                general_discount: plainProduct.general_discount,
+                discount_type: plainProduct.discount_type,
+                discount_amount: plainProduct.discount_amount,
                 colors: uniqueColors,
                 sizes: uniqueSizes,
-                total_sold: item.dataValues.total_quantity
+                total_sold: totalSold
             };
-        })
-        .filter(Boolean);
+        });
 
         return response(res, 200, {
             success: true,
