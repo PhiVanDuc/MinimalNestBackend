@@ -18,15 +18,6 @@ module.exports = {
         email: "phivanduc325@gmail.com",
         password: hashPassword,
         status: "active"
-      },
-      {
-        id: uuidv4(),
-        first_name: "Nguyễn",
-        last_name: "Long Dương",
-        full_name: "Nguyễn Long Dương",
-        email: "phid808@gmail.com",
-        password: hashPassword,
-        status: "active"
       }
     ]);
   },

@@ -142,7 +142,12 @@ module.exports = {
                         where: { display_order: true },
                         attributes: ['url'],
                         required: false
-                    }
+                    },
+                    {
+                        model: Discount,
+                        as: "general_discount",
+                        attributes: ['id', 'slug', 'discount_name', 'discount_type', 'discount_amount']
+                    },
                 ],
                 where: {},
                 distinct: true,
