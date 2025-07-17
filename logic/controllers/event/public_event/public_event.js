@@ -1,10 +1,19 @@
 const { Event } = require("../../../../db/models/index");
+const { Op } = require("sequelize");
+
 const response = require("../../../../utils/response");
 
 module.exports = {
     get_events: async (req, res) => {
         try {
-            const events = await Event.findAll();
+            const now = new Date();
+
+            const events = await Event.findAll({
+                where: {
+                    start_date: { [Op.lte]: now },
+                    end_date: { [Op.gt]: now }
+                }
+            });
             return response(res, 200, {
                 success: true,
                 message: "Đã lấy ra danh sách sự kiện!",

@@ -148,6 +148,12 @@ module.exports = {
                         as: "general_discount",
                         attributes: ['id', 'slug', 'discount_name', 'discount_type', 'discount_amount']
                     },
+                    {
+                        model: ProductType,
+                        as: "product_types",
+                        attributes: ['id', 'slug', 'product_type'],
+                        through: { attributes: [] }
+                    }
                 ],
                 where: {},
                 distinct: true,
